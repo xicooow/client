@@ -1,16 +1,21 @@
-const API_URL = "http://localhost:5000/api";
+import { AUTH_TOKEN_KEY } from "../constants";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const useFetch = <R = any>(
   endpoint: string,
   options?: RequestInit
 ) => {
-  const {
-    method = "GET",
-    body = JSON.stringify({}),
-    headers = {
-      "Content-Type": "application/json",
-    },
-  } = options || {};
+  const authToken = localStorage.getItem(AUTH_TOKEN_KEY);
+
+  const { method = "GET", body = JSON.stringify({}) } =
+    options || {};
+
+  const headers: HeadersInit = new Headers();
+  headers.set("Content-Type", "application/json");
+  if (authToken) {
+    headers.set("Authorization", `Bearer ${authToken}`);
+  }
 
   const input = `${API_URL}/${endpoint}`;
 
@@ -26,7 +31,7 @@ const useFetch = <R = any>(
     return (await response.json()) as R;
   };
 
-  return { request };
+  return request;
 };
 
 export default useFetch;
