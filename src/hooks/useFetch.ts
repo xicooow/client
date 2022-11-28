@@ -26,6 +26,8 @@ const useFetch = <R = any>(
       ...(method !== "GET" && method !== "DELETE" && { body }),
     });
 
+    if (response.status === 401) window.location.href = "/login";
+
     if (!response.ok) throw new Error("Tente novamente...");
 
     return (await response.json()) as R;

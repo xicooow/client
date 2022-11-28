@@ -10,15 +10,7 @@ import { useMutation } from "@tanstack/react-query";
 
 import useFetch from "../hooks/useFetch";
 import { AUTH_TOKEN_KEY } from "../constants";
-
-interface LoginPayload {
-  email: string;
-  password: string;
-}
-
-interface LoginResponse {
-  token: string;
-}
+import { LoginPayload, LoginResponse } from "../types";
 
 const Login: FunctionComponent = () => {
   const navigate = useNavigate();
