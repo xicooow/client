@@ -1,5 +1,16 @@
 import { AUTH_TOKEN_KEY, API_URL } from "../constants";
 
+const getResponseError = async (text: Promise<string>) => {
+  try {
+    const rawMessage = await Promise.resolve(text);
+    const data = JSON.parse(rawMessage);
+    return data.message as string;
+  } catch (error) {
+    if (error instanceof Error) return error.message;
+    return String(error);
+  }
+};
+
 export default <R = any>(
   endpoint: string,
   options?: RequestInit
@@ -11,6 +22,7 @@ export default <R = any>(
 
   const headers: HeadersInit = new Headers();
 
+  headers.set("Accept", "application/json");
   headers.set("Content-Type", "application/json");
   if (authToken) {
     headers.set("Authorization", `Bearer ${authToken}`);
@@ -25,7 +37,8 @@ export default <R = any>(
 
     if (response.status === 401) window.location.href = "/login";
 
-    if (!response.ok) throw new Error(await response.text());
+    if (!response.ok)
+      throw new Error(await getResponseError(response.text()));
 
     return (await response.json()) as R;
   };

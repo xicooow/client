@@ -7,7 +7,6 @@ import {
 import Root from "./pages/Root";
 import Login from "./pages/Login";
 import Account from "./pages/Account";
-import Shopping from "./pages/Shopping";
 import NotFound from "./pages/NotFound";
 import Register from "./pages/Register";
 
@@ -22,7 +21,6 @@ const App: FunctionComponent = () => {
         { path: "login", element: <Login /> },
         { path: "account", element: <Account /> },
         { path: "register", element: <Register /> },
-        { path: "shopping/:userId", element: <Shopping /> },
       ],
     },
   ]);
