@@ -1,8 +1,13 @@
 import { FunctionComponent } from "react";
+import { Container } from "@mantine/core";
 import { Outlet } from "react-router-dom";
 
 const Root: FunctionComponent = () => {
-  return <Outlet />;
+  return (
+    <Container py="lg">
+      <Outlet />
+    </Container>
+  );
 };
 
 export default Root;

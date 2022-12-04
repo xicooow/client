@@ -1,12 +1,15 @@
-import {
-  useState,
-  useEffect,
-  FormEvent,
-  ChangeEvent,
-  FunctionComponent,
-} from "react";
+import { useState, useEffect, FunctionComponent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
+import { IconLoader } from "@tabler/icons";
+import { useForm } from "@mantine/form";
+import {
+  Paper,
+  Button,
+  Group,
+  Text,
+  TextInput,
+} from "@mantine/core";
 
 import api from "../api";
 import { AUTH_TOKEN_KEY } from "../constants";
@@ -15,8 +18,13 @@ import { LoginPayload, LoginResponse } from "../types";
 const Login: FunctionComponent = () => {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const form = useForm<LoginPayload>({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+  });
+
   const [authToken, setAuthToken] = useState<string | null>(
     null
   );
@@ -39,11 +47,6 @@ const Login: FunctionComponent = () => {
     mutationFn,
   });
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    login({ email, password });
-  };
-
   useEffect(() => {
     const goToAccountPage = () => navigate("/account");
 
@@ -58,51 +61,64 @@ const Login: FunctionComponent = () => {
   }, [authToken]);
 
   return (
-    <section className="login">
-      <form onSubmit={handleSubmit}>
-        <fieldset>
-          <legend>Login</legend>
-          <div className="input-group">
-            <label htmlFor="email">Email</label>
-            <input
-              required
-              id="email"
-              type="email"
-              value={email}
-              name="email-input"
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setEmail(e.target.value)
-              }
-            />
-          </div>
-          <div className="input-group">
-            <label htmlFor="password">Senha</label>
-            <input
-              required
-              id="password"
-              type="password"
-              value={password}
-              name="password-input"
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setPassword(e.target.value)
-              }
-            />
-          </div>
-          <div className="button-group">
-            <button
-              type="submit"
-              disabled={!email || !password || isLoading}
-            >
-              Conectar
-            </button>
-          </div>
-          {error && <div className="error">{error.message}</div>}
-        </fieldset>
+    <Paper
+      p="xl"
+      mt="xl"
+      mx="auto"
+      withBorder
+      radius="md"
+      sx={{ maxWidth: 475 }}
+    >
+      <Text
+        mb="lg"
+        size="lg"
+        weight={500}
+      >
+        Mercadin, seu assistente de compras
+      </Text>
+      <form onSubmit={form.onSubmit(values => login(values))}>
+        <TextInput
+          required
+          type="email"
+          label="Email"
+          {...form.getInputProps("email")}
+        />
+        <TextInput
+          required
+          label="Senha"
+          type="password"
+          {...form.getInputProps("password")}
+        />
+        <Group
+          mt="md"
+          position="apart"
+        >
+          <Text>
+            <Link to="/register">Criar usuário</Link>
+          </Text>
+          <Button
+            type="submit"
+            disabled={isLoading || !form.isDirty()}
+          >
+            {isLoading ? (
+              <IconLoader
+                style={{ animation: "spin 2s linear infinite" }}
+              />
+            ) : (
+              "Conectar"
+            )}
+          </Button>
+        </Group>
       </form>
-      <p>
-        <Link to="/register">Criar usuário</Link>
-      </p>
-    </section>
+      {error && (
+        <Group
+          mt="md"
+          position="center"
+        >
+          <Text color="red">{error.message}</Text>
+        </Group>
+      )}
+    </Paper>
   );
 };
 

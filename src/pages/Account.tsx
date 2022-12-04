@@ -1,10 +1,18 @@
 import { FunctionComponent, ReactNode } from "react";
+import { IconLoader, IconAt, IconCalendar } from "@tabler/icons";
+import {
+  Button,
+  Group,
+  Text,
+  Divider,
+  Box,
+} from "@mantine/core";
 import {
   QueryKey,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import moment from "moment";
+import dayjs from "dayjs";
 
 import api from "../api";
 import { Account } from "../types";
@@ -32,68 +40,93 @@ const AccountComponent: FunctionComponent = () => {
   let content: ReactNode;
 
   if (error) {
-    content = <div className="error">{error.message}</div>;
+    content = (
+      <Group position="center">
+        <Text color="red">{error.message}</Text>
+      </Group>
+    );
   }
 
   if (isLoading) {
-    content = <p>Carregando...</p>;
+    content = (
+      <Group position="center">
+        <Text>
+          Carregando...{" "}
+          <IconLoader
+            style={{ animation: "spin 2s linear infinite" }}
+          />
+        </Text>
+      </Group>
+    );
   }
 
   if (data) {
     const { name, email, cre_date } = data;
 
     content = (
-      <form>
-        <div className="input-group">
-          <label htmlFor="name">Nome</label>
-          <input
-            readOnly
-            disabled
-            id="name"
-            type="text"
-            value={name}
-            name="name-input"
+      <>
+        <Group>
+          <Text
+            size="lg"
+            weight={500}
+          >
+            {name}
+          </Text>
+        </Group>
+        <Group
+          noWrap
+          mt={5}
+          spacing={10}
+        >
+          <IconAt
+            size={16}
+            stroke={1.5}
           />
-        </div>
-        <div className="input-group">
-          <label htmlFor="email">Email</label>
-          <input
-            readOnly
-            disabled
-            id="email"
-            type="email"
-            value={email}
-            name="email-input"
+          <Text size="xs">{email}</Text>
+        </Group>
+        <Group
+          noWrap
+          mt={5}
+          spacing={10}
+        >
+          <IconCalendar
+            size={16}
+            stroke={1.5}
           />
-        </div>
-        <div className="input-group">
-          <label htmlFor="date">Data de Criação</label>
-          <input
-            readOnly
-            disabled
-            id="date"
-            type="text"
-            value={moment(cre_date).format("LLL")}
-            name="date-input"
-          />
-        </div>
-        <div className="button-group">
-          <button
+          <Text size="xs">{dayjs(cre_date).format("LLL")}</Text>
+        </Group>
+        <Group
+          mt="md"
+          position="right"
+        >
+          <Button
+            color="red"
             type="button"
+            variant="light"
             onClick={disconnect}
           >
             Desconectar
-          </button>
-        </div>
-      </form>
+          </Button>
+        </Group>
+      </>
     );
   }
 
   return (
-    <section className="account">
-      <h2>Minha conta</h2>
+    <Box
+      mx="auto"
+      sx={{ maxWidth: 475 }}
+    >
+      <Text
+        size="md"
+        weight={600}
+        sx={{ textTransform: "uppercase" }}
+      >
+        Minha conta
+      </Text>
+      <Divider my="md" />
       {content}
-    </section>
+    </Box>
   );
 };
 
