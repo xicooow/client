@@ -7,7 +7,6 @@ import {
 } from "@tanstack/react-query";
 
 import App from "./App";
-import "./index.css";
 
 const common: Partial<QueryOptions> = {
   retry: false,

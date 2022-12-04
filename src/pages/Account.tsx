@@ -6,9 +6,9 @@ import {
 } from "@tanstack/react-query";
 import moment from "moment";
 
-import { AUTH_TOKEN_KEY } from "../constants";
-import useFetch from "../hooks/useFetch";
+import api from "../api";
 import { Account } from "../types";
+import { AUTH_TOKEN_KEY } from "../constants";
 
 export const ACCOUNT_QUERY_KEY: QueryKey = ["fetch_account"];
 
@@ -18,7 +18,7 @@ const AccountComponent: FunctionComponent = () => {
   const { data, error, isLoading } = useQuery<Account, Error>(
     ACCOUNT_QUERY_KEY,
     async () => {
-      const request = useFetch<Account>("logged");
+      const request = api<Account>("logged");
 
       return await request();
     }

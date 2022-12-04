@@ -7,7 +7,7 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
-import useFetch from "../hooks/useFetch";
+import api from "../api";
 import { Account, RegistryPayload } from "../types";
 
 const Register: FunctionComponent = () => {
@@ -23,7 +23,7 @@ const Register: FunctionComponent = () => {
   };
 
   const mutationFn = async (params: RegistryPayload) => {
-    const request = useFetch<Account>("user", {
+    const request = api<Account>("user", {
       method: "POST",
       body: JSON.stringify(params),
     });

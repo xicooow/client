@@ -8,7 +8,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 
-import useFetch from "../hooks/useFetch";
+import api from "../api";
 import { AUTH_TOKEN_KEY } from "../constants";
 import { LoginPayload, LoginResponse } from "../types";
 
@@ -22,7 +22,7 @@ const Login: FunctionComponent = () => {
   );
 
   const mutationFn = async (params: LoginPayload) => {
-    const request = useFetch<LoginResponse>("login", {
+    const request = api<LoginResponse>("login", {
       method: "POST",
       body: JSON.stringify(params),
     });
