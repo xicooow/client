@@ -3,6 +3,7 @@ import { FunctionComponent, useMemo } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 
 import { PAGES } from "./";
+import { HEADER_LINKS } from "../constants";
 import HeaderMenu from "../components/HeaderMenu";
 
 const Root: FunctionComponent = () => {
@@ -16,17 +17,9 @@ const Root: FunctionComponent = () => {
     [pathname]
   );
 
-  const links = [
-    {
-      url: `/${PAGES.ACCOUNT}`,
-      label: "Conta",
-      sublinks: [],
-    },
-  ];
-
   return (
     <>
-      {shouldRenderHeader && <HeaderMenu links={links} />}
+      {shouldRenderHeader && <HeaderMenu links={HEADER_LINKS} />}
       <Container py="lg">
         <Outlet />
       </Container>
