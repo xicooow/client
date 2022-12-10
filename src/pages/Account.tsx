@@ -1,45 +1,58 @@
 import dayjs from "dayjs";
-import { FunctionComponent, ReactNode } from "react";
-import { Button, Group, Text, Box } from "@mantine/core";
-import { IconLoader, IconAt, IconCalendar } from "@tabler/icons";
+import { useClipboard } from "@mantine/hooks";
+import { useNavigate } from "react-router-dom";
+import { showNotification } from "@mantine/notifications";
+import { FunctionComponent, ReactNode, useMemo } from "react";
 import {
-  QueryKey,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+  Button,
+  Group,
+  Text,
+  Box,
+  createStyles,
+  Tooltip,
+} from "@mantine/core";
+import {
+  IconLoader,
+  IconAt,
+  IconCalendar,
+  IconId,
+  IconCopy,
+} from "@tabler/icons";
 
-import api from "../api";
-import { Account } from "../types";
+import { PAGES } from "./";
+import { useStore } from "../context/store";
 import { AUTH_TOKEN_KEY } from "../constants";
 
-export const ACCOUNT_QUERY_KEY: QueryKey = ["fetch_account"];
+const useStyles = createStyles(theme => ({
+  link: {
+    display: "block",
+    color:
+      theme.colorScheme === "dark"
+        ? theme.colors.dark[1]
+        : theme.colors.gray[6],
+    cursor: "pointer",
+
+    "&:hover": {
+      textDecoration: "underline",
+    },
+  },
+}));
 
 const AccountComponent: FunctionComponent = () => {
-  const queryClient = useQueryClient();
+  const { user, cleanup } = useStore();
+  const navigate = useNavigate();
+  const { copy } = useClipboard();
+  const { classes } = useStyles();
 
-  const { data, error, isLoading } = useQuery<Account, Error>(
-    ACCOUNT_QUERY_KEY,
-    async () => {
-      const request = api<Account>("logged");
-
-      return await request();
-    }
-  );
+  const isLoading = useMemo(() => !user._id, [user._id]);
 
   const disconnect = () => {
     localStorage.removeItem(AUTH_TOKEN_KEY);
-    queryClient.invalidateQueries(ACCOUNT_QUERY_KEY);
+    cleanup();
+    navigate(`/${PAGES.LOGIN}`);
   };
 
   let content: ReactNode;
-
-  if (error) {
-    content = (
-      <Group position="center">
-        <Text color="red">{error.message}</Text>
-      </Group>
-    );
-  }
 
   if (isLoading) {
     content = (
@@ -52,13 +65,37 @@ const AccountComponent: FunctionComponent = () => {
         </Text>
       </Group>
     );
-  }
-
-  if (data) {
-    const { email, cre_date } = data;
-
+  } else {
     content = (
       <>
+        <Group
+          noWrap
+          mt={5}
+          spacing={10}
+        >
+          <IconId />
+          <Tooltip
+            withArrow
+            label="Identificador do usuário"
+          >
+            <Text
+              size="lg"
+              className={classes.link}
+              onClick={e => {
+                e.preventDefault();
+                copy(user._id);
+                showNotification({
+                  autoClose: 3000,
+                  icon: <IconCopy />,
+                  message:
+                    "Copiado para a área de transferência",
+                });
+              }}
+            >
+              {user._id}
+            </Text>
+          </Tooltip>
+        </Group>
         <Group
           noWrap
           mt={5}
@@ -68,7 +105,7 @@ const AccountComponent: FunctionComponent = () => {
             size={16}
             stroke={1.5}
           />
-          <Text size="xs">{email}</Text>
+          <Text size="xs">{user.email}</Text>
         </Group>
         <Group
           noWrap
@@ -79,7 +116,9 @@ const AccountComponent: FunctionComponent = () => {
             size={16}
             stroke={1.5}
           />
-          <Text size="xs">{dayjs(cre_date).format("LLL")}</Text>
+          <Text size="xs">
+            {dayjs(user.cre_date).format("LLL")}
+          </Text>
         </Group>
         <Group
           mt="md"
@@ -104,11 +143,11 @@ const AccountComponent: FunctionComponent = () => {
       sx={{ maxWidth: 475 }}
     >
       <Text
-        size="md"
+        size="lg"
         weight={600}
         sx={{ textTransform: "capitalize" }}
       >
-        {data?.name || ""}
+        {user.name}
       </Text>
       {content}
     </Box>
