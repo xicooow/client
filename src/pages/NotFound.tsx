@@ -9,6 +9,8 @@ import {
   createStyles,
 } from "@mantine/core";
 
+import { PAGES } from ".";
+
 const useStyles = createStyles(theme => ({
   root: {
     paddingTop: 40,
@@ -56,7 +58,7 @@ const NotFound: FunctionComponent = () => {
           size="md"
           color="red"
           variant="light"
-          onClick={() => navigate("/account")}
+          onClick={() => navigate(`/${PAGES.ACCOUNT}`)}
         >
           Ir para página inicial
         </Button>

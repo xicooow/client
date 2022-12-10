@@ -1,18 +1,12 @@
+import dayjs from "dayjs";
 import { FunctionComponent, ReactNode } from "react";
+import { Button, Group, Text, Box } from "@mantine/core";
 import { IconLoader, IconAt, IconCalendar } from "@tabler/icons";
-import {
-  Button,
-  Group,
-  Text,
-  Divider,
-  Box,
-} from "@mantine/core";
 import {
   QueryKey,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import dayjs from "dayjs";
 
 import api from "../api";
 import { Account } from "../types";
@@ -61,18 +55,10 @@ const AccountComponent: FunctionComponent = () => {
   }
 
   if (data) {
-    const { name, email, cre_date } = data;
+    const { email, cre_date } = data;
 
     content = (
       <>
-        <Group>
-          <Text
-            size="lg"
-            weight={500}
-          >
-            {name}
-          </Text>
-        </Group>
         <Group
           noWrap
           mt={5}
@@ -120,11 +106,10 @@ const AccountComponent: FunctionComponent = () => {
       <Text
         size="md"
         weight={600}
-        sx={{ textTransform: "uppercase" }}
+        sx={{ textTransform: "capitalize" }}
       >
-        Minha conta
+        {data?.name || ""}
       </Text>
-      <Divider my="md" />
       {content}
     </Box>
   );

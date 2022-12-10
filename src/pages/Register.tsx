@@ -12,6 +12,7 @@ import {
 } from "@mantine/core";
 
 import api from "../api";
+import { PAGES } from ".";
 import { Account, RegistryPayload } from "../types";
 
 const Register: FunctionComponent = () => {
@@ -39,7 +40,7 @@ const Register: FunctionComponent = () => {
     isLoading,
     mutate: register,
   } = useMutation<Account, Error, RegistryPayload>({
-    onSuccess: () => navigate("/login"),
+    onSuccess: () => navigate(`/${PAGES.LOGIN}`),
     mutationFn,
   });
 

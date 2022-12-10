@@ -44,3 +44,13 @@ export interface LoginResponse {
 export interface RegistryPayload extends CommonShape {
   password: string;
 }
+
+export interface HeaderLink {
+  url: string;
+  label: string;
+  sublinks: Pick<HeaderLink, "url" | "label">[];
+}
+
+export interface HeaderProps {
+  links: HeaderLink[];
+}
