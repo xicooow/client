@@ -15,6 +15,9 @@ import {
   Burger,
   Container,
   Button,
+  Drawer,
+  ScrollArea,
+  Divider,
 } from "@mantine/core";
 
 import api from "../../api";
@@ -68,7 +71,7 @@ const useStyles = createStyles(theme => ({
 const HeaderMenu: FunctionComponent<HeaderProps> = ({
   links,
 }) => {
-  const { classes } = useStyles();
+  const { classes, theme } = useStyles();
   const { user, setUser } = useStore();
   const [opened, { toggle }] = useDisclosure(false);
 
@@ -91,10 +94,20 @@ const HeaderMenu: FunctionComponent<HeaderProps> = ({
     }
   }, [user._id]);
 
+  const handleLinkClick = () => {
+    if (opened) {
+      toggle();
+    }
+  };
+
   const items = links.map(link => {
     const menuItems = link.sublinks.map((item, index) => (
       <Fragment key={index}>
-        <Link to={item.url} />
+        <Link
+          to={item.url}
+          className={classes.link}
+          onClick={handleLinkClick}
+        />
       </Fragment>
     ));
 
@@ -106,20 +119,15 @@ const HeaderMenu: FunctionComponent<HeaderProps> = ({
           exitTransitionDuration={0}
         >
           <Menu.Target>
-            <Link
-              to={link.url}
-              className={classes.link}
-            >
-              <Center>
-                <span className={classes.linkLabel}>
-                  {link.label}
-                </span>
-                <IconChevronDown
-                  size={12}
-                  stroke={1.5}
-                />
-              </Center>
-            </Link>
+            <Center>
+              <span className={classes.linkLabel}>
+                {link.label}
+              </span>
+              <IconChevronDown
+                size={12}
+                stroke={1.5}
+              />
+            </Center>
           </Menu.Target>
           <Menu.Dropdown>{menuItems}</Menu.Dropdown>
         </Menu>
@@ -127,13 +135,15 @@ const HeaderMenu: FunctionComponent<HeaderProps> = ({
     }
 
     return (
-      <Link
-        to={link.url}
-        key={link.url}
-        className={classes.link}
-      >
-        {link.label}
-      </Link>
+      <Fragment key={link.url}>
+        <Link
+          to={link.url}
+          className={classes.link}
+          onClick={handleLinkClick}
+        >
+          {link.label}
+        </Link>
+      </Fragment>
     );
   });
 
@@ -165,6 +175,34 @@ const HeaderMenu: FunctionComponent<HeaderProps> = ({
             className={classes.burger}
           />
         </div>
+        <Drawer
+          size="100%"
+          padding="md"
+          title="Menu"
+          opened={opened}
+          zIndex={1000000}
+          onClose={toggle}
+        >
+          <ScrollArea
+            mx="-md"
+            sx={{ height: `calc(100vh - ${HEADER_HEIGHT}px)` }}
+          >
+            <Divider
+              my="sm"
+              color={
+                theme.colorScheme === "dark"
+                  ? theme.colors.dark[6]
+                  : theme.colors.gray[0]
+              }
+            />
+            <Group
+              px="md"
+              spacing={5}
+            >
+              {items}
+            </Group>
+          </ScrollArea>
+        </Drawer>
       </Container>
     </Header>
   );
