@@ -4,6 +4,8 @@ import {
   createBrowserRouter,
 } from "react-router-dom";
 
+import { PAGES } from "./pages";
+
 import Root from "./pages/Root";
 import Login from "./pages/Login";
 import Account from "./pages/Account";
@@ -18,9 +20,9 @@ const App: FunctionComponent = () => {
       errorElement: <NotFound />,
       children: [
         { index: true, element: <Login /> },
-        { path: "login", element: <Login /> },
-        { path: "account", element: <Account /> },
-        { path: "register", element: <Register /> },
+        { path: PAGES.LOGIN, element: <Login /> },
+        { path: PAGES.ACCOUNT, element: <Account /> },
+        { path: PAGES.REGISTER, element: <Register /> },
       ],
     },
   ]);

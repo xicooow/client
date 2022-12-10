@@ -12,6 +12,7 @@ import {
 } from "@mantine/core";
 
 import api from "../api";
+import { PAGES } from ".";
 import { AUTH_TOKEN_KEY } from "../constants";
 import { LoginPayload, LoginResponse } from "../types";
 
@@ -48,7 +49,7 @@ const Login: FunctionComponent = () => {
   });
 
   useEffect(() => {
-    const goToAccountPage = () => navigate("/account");
+    const goToAccountPage = () => navigate(`/${PAGES.ACCOUNT}`);
 
     if (authToken) {
       // has been logged
@@ -94,7 +95,7 @@ const Login: FunctionComponent = () => {
           position="apart"
         >
           <Text>
-            <Link to="/register">Criar usuário</Link>
+            <Link to={`/${PAGES.REGISTER}`}>Criar usuário</Link>
           </Text>
           <Button
             type="submit"

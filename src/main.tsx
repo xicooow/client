@@ -14,6 +14,7 @@ dayjs.locale("pt-br");
 dayjs.extend(localizedFormat);
 
 import App from "./App";
+import { Store } from "./context/store";
 
 const common: Partial<QueryOptions> = {
   retry: false,
@@ -47,7 +48,9 @@ ReactDOM.createRoot(
         withGlobalStyles
         withNormalizeCSS
       >
-        <App />
+        <Store>
+          <App />
+        </Store>
       </MantineProvider>
     </QueryClientProvider>
   </React.StrictMode>

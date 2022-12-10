@@ -1,3 +1,4 @@
+import { PAGES } from "../pages";
 import { AUTH_TOKEN_KEY, API_URL } from "../constants";
 
 const getResponseError = async (text: Promise<string>) => {
@@ -35,7 +36,8 @@ export default <R = any>(
       ...(method !== "GET" && method !== "DELETE" && { body }),
     });
 
-    if (response.status === 401) window.location.href = "/login";
+    if (response.status === 401)
+      window.location.href = `/${PAGES.LOGIN}`;
 
     if (!response.ok)
       throw new Error(await getResponseError(response.text()));
