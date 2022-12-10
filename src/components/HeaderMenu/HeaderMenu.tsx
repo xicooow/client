@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
-import { Fragment, FunctionComponent } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Fragment, FunctionComponent, useEffect } from "react";
 import {
   IconChevronDown,
   IconShoppingCart,
@@ -16,7 +17,10 @@ import {
   Button,
 } from "@mantine/core";
 
-import { HeaderProps } from "../../types";
+import api from "../../api";
+import { QUERY_KEYS } from "../../constants";
+import { useStore } from "../../context/store";
+import { Account, HeaderProps } from "../../types";
 
 const HEADER_HEIGHT = 56;
 
@@ -65,7 +69,27 @@ const HeaderMenu: FunctionComponent<HeaderProps> = ({
   links,
 }) => {
   const { classes } = useStyles();
+  const { user, setUser } = useStore();
   const [opened, { toggle }] = useDisclosure(false);
+
+  const logged = useQuery<Account, Error>(
+    QUERY_KEYS.ACCOUNT,
+    async () => {
+      const request = api<Account>("logged");
+
+      return await request();
+    },
+    {
+      enabled: false,
+      onSuccess: setUser,
+    }
+  );
+
+  useEffect(() => {
+    if (!user._id) {
+      logged.refetch();
+    }
+  }, [user._id]);
 
   const items = links.map(link => {
     const menuItems = link.sublinks.map((item, index) => (

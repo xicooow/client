@@ -9,7 +9,7 @@ export interface Context {
 }
 
 export interface State {
-  user: Pick<Account, "_id">;
+  user: Account;
 }
 
 export type Action =

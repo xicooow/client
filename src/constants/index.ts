@@ -8,5 +8,8 @@ export const HEADER_LINKS: HeaderLink[] = [
     sublinks: [],
   },
 ];
+export const QUERY_KEYS = {
+  ACCOUNT: ["fetch_account"],
+};
 export const AUTH_TOKEN_KEY = "auth_token";
 export const API_URL = import.meta.env.VITE_API_URL;

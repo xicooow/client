@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 
 import api from "../api";
-import { PAGES } from ".";
+import { PAGES } from "./";
 import { AUTH_TOKEN_KEY } from "../constants";
 import { LoginPayload, LoginResponse } from "../types";
 

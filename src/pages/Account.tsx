@@ -1,7 +1,8 @@
 import dayjs from "dayjs";
 import { useClipboard } from "@mantine/hooks";
-import { FunctionComponent, ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 import { showNotification } from "@mantine/notifications";
+import { FunctionComponent, ReactNode, useMemo } from "react";
 import {
   Button,
   Group,
@@ -17,17 +18,10 @@ import {
   IconId,
   IconCopy,
 } from "@tabler/icons";
-import {
-  QueryKey,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
 
-import api from "../api";
-import { Account } from "../types";
+import { PAGES } from "./";
+import { useStore } from "../context/store";
 import { AUTH_TOKEN_KEY } from "../constants";
-
-export const ACCOUNT_QUERY_KEY: QueryKey = ["fetch_account"];
 
 const useStyles = createStyles(theme => ({
   link: {
@@ -45,33 +39,20 @@ const useStyles = createStyles(theme => ({
 }));
 
 const AccountComponent: FunctionComponent = () => {
+  const { user, cleanup } = useStore();
+  const navigate = useNavigate();
   const { copy } = useClipboard();
   const { classes } = useStyles();
-  const queryClient = useQueryClient();
 
-  const { data, error, isLoading } = useQuery<Account, Error>(
-    ACCOUNT_QUERY_KEY,
-    async () => {
-      const request = api<Account>("logged");
-
-      return await request();
-    }
-  );
+  const isLoading = useMemo(() => !user._id, [user._id]);
 
   const disconnect = () => {
     localStorage.removeItem(AUTH_TOKEN_KEY);
-    queryClient.invalidateQueries(ACCOUNT_QUERY_KEY);
+    cleanup();
+    navigate(`/${PAGES.LOGIN}`);
   };
 
   let content: ReactNode;
-
-  if (error) {
-    content = (
-      <Group position="center">
-        <Text color="red">{error.message}</Text>
-      </Group>
-    );
-  }
 
   if (isLoading) {
     content = (
@@ -84,11 +65,7 @@ const AccountComponent: FunctionComponent = () => {
         </Text>
       </Group>
     );
-  }
-
-  if (data) {
-    const { email, cre_date, _id } = data;
-
+  } else {
     content = (
       <>
         <Group
@@ -106,7 +83,7 @@ const AccountComponent: FunctionComponent = () => {
               className={classes.link}
               onClick={e => {
                 e.preventDefault();
-                copy(_id);
+                copy(user._id);
                 showNotification({
                   autoClose: 3000,
                   icon: <IconCopy />,
@@ -115,7 +92,7 @@ const AccountComponent: FunctionComponent = () => {
                 });
               }}
             >
-              {_id}
+              {user._id}
             </Text>
           </Tooltip>
         </Group>
@@ -128,7 +105,7 @@ const AccountComponent: FunctionComponent = () => {
             size={16}
             stroke={1.5}
           />
-          <Text size="xs">{email}</Text>
+          <Text size="xs">{user.email}</Text>
         </Group>
         <Group
           noWrap
@@ -139,7 +116,9 @@ const AccountComponent: FunctionComponent = () => {
             size={16}
             stroke={1.5}
           />
-          <Text size="xs">{dayjs(cre_date).format("LLL")}</Text>
+          <Text size="xs">
+            {dayjs(user.cre_date).format("LLL")}
+          </Text>
         </Group>
         <Group
           mt="md"
@@ -168,7 +147,7 @@ const AccountComponent: FunctionComponent = () => {
         weight={600}
         sx={{ textTransform: "capitalize" }}
       >
-        {data?.name || ""}
+        {user.name}
       </Text>
       {content}
     </Box>

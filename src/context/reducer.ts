@@ -1,7 +1,12 @@
 import { State, Action } from "../types";
 
 export const initialState: State = {
-  user: { _id: "" },
+  user: {
+    _id: "",
+    name: "",
+    email: "",
+    cre_date: "",
+  },
 };
 
 export default (state: State, action: Action): State => {

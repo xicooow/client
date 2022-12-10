@@ -7,7 +7,9 @@ const getResponseError = async (text: Promise<string>) => {
     const data = JSON.parse(rawMessage);
     return data.message as string;
   } catch (error) {
-    if (error instanceof Error) return error.message;
+    if (error instanceof Error) {
+      return error.message;
+    }
     return String(error);
   }
 };
@@ -36,11 +38,13 @@ export default <R = any>(
       ...(method !== "GET" && method !== "DELETE" && { body }),
     });
 
-    if (response.status === 401)
+    if (response.status === 401) {
       window.location.href = `/${PAGES.LOGIN}`;
+    }
 
-    if (!response.ok)
+    if (!response.ok) {
       throw new Error(await getResponseError(response.text()));
+    }
 
     return (await response.json()) as R;
   };
