@@ -1,7 +1,22 @@
 import dayjs from "dayjs";
+import { useClipboard } from "@mantine/hooks";
 import { FunctionComponent, ReactNode } from "react";
-import { Button, Group, Text, Box } from "@mantine/core";
-import { IconLoader, IconAt, IconCalendar } from "@tabler/icons";
+import { showNotification } from "@mantine/notifications";
+import {
+  Button,
+  Group,
+  Text,
+  Box,
+  createStyles,
+  Tooltip,
+} from "@mantine/core";
+import {
+  IconLoader,
+  IconAt,
+  IconCalendar,
+  IconId,
+  IconCopy,
+} from "@tabler/icons";
 import {
   QueryKey,
   useQuery,
@@ -14,7 +29,24 @@ import { AUTH_TOKEN_KEY } from "../constants";
 
 export const ACCOUNT_QUERY_KEY: QueryKey = ["fetch_account"];
 
+const useStyles = createStyles(theme => ({
+  link: {
+    display: "block",
+    color:
+      theme.colorScheme === "dark"
+        ? theme.colors.dark[1]
+        : theme.colors.gray[6],
+    cursor: "pointer",
+
+    "&:hover": {
+      textDecoration: "underline",
+    },
+  },
+}));
+
 const AccountComponent: FunctionComponent = () => {
+  const { copy } = useClipboard();
+  const { classes } = useStyles();
   const queryClient = useQueryClient();
 
   const { data, error, isLoading } = useQuery<Account, Error>(
@@ -55,10 +87,38 @@ const AccountComponent: FunctionComponent = () => {
   }
 
   if (data) {
-    const { email, cre_date } = data;
+    const { email, cre_date, _id } = data;
 
     content = (
       <>
+        <Group
+          noWrap
+          mt={5}
+          spacing={10}
+        >
+          <IconId />
+          <Tooltip
+            withArrow
+            label="Identificador do usuário"
+          >
+            <Text
+              size="lg"
+              className={classes.link}
+              onClick={e => {
+                e.preventDefault();
+                copy(_id);
+                showNotification({
+                  autoClose: 3000,
+                  icon: <IconCopy />,
+                  message:
+                    "Copiado para a área de transferência",
+                });
+              }}
+            >
+              {_id}
+            </Text>
+          </Tooltip>
+        </Group>
         <Group
           noWrap
           mt={5}
@@ -104,7 +164,7 @@ const AccountComponent: FunctionComponent = () => {
       sx={{ maxWidth: 475 }}
     >
       <Text
-        size="md"
+        size="lg"
         weight={600}
         sx={{ textTransform: "capitalize" }}
       >
