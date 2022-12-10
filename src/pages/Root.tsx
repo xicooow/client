@@ -2,8 +2,7 @@ import { Container } from "@mantine/core";
 import { FunctionComponent, useMemo } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 
-import { PAGES } from "./";
-import { HEADER_LINKS } from "../constants";
+import { HEADER_LINKS, PAGES } from "../constants";
 import HeaderMenu from "../components/HeaderMenu";
 
 const Root: FunctionComponent = () => {

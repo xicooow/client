@@ -1,5 +1,4 @@
-import { PAGES } from "../pages";
-import { AUTH_TOKEN_KEY, API_URL } from "../constants";
+import { AUTH_TOKEN_KEY, API_URL, PAGES } from "../constants";
 
 const getResponseError = async (text: Promise<string>) => {
   try {

@@ -1,6 +1,10 @@
-import { PAGES } from "../pages";
 import { HeaderLink } from "../types";
 
+export const PAGES = {
+  LOGIN: "login",
+  ACCOUNT: "account",
+  REGISTER: "register",
+};
 export const HEADER_LINKS: HeaderLink[] = [
   {
     url: `/${PAGES.ACCOUNT}`,

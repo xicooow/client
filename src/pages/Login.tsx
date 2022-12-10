@@ -12,8 +12,7 @@ import {
 } from "@mantine/core";
 
 import api from "../api";
-import { PAGES } from "./";
-import { AUTH_TOKEN_KEY } from "../constants";
+import { AUTH_TOKEN_KEY, PAGES } from "../constants";
 import { LoginPayload, LoginResponse } from "../types";
 
 const Login: FunctionComponent = () => {

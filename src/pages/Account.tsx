@@ -19,9 +19,8 @@ import {
   IconCopy,
 } from "@tabler/icons";
 
-import { PAGES } from "./";
 import { useStore } from "../context/store";
-import { AUTH_TOKEN_KEY } from "../constants";
+import { AUTH_TOKEN_KEY, PAGES } from "../constants";
 
 const useStyles = createStyles(theme => ({
   link: {

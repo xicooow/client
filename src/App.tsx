@@ -4,7 +4,7 @@ import {
   createBrowserRouter,
 } from "react-router-dom";
 
-import { PAGES } from "./pages";
+import { PAGES } from "./constants";
 
 import Root from "./pages/Root";
 import Login from "./pages/Login";

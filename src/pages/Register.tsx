@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 
 import api from "../api";
-import { PAGES } from "./";
+import { PAGES } from "../constants";
 import { Account, RegistryPayload } from "../types";
 
 const Register: FunctionComponent = () => {
