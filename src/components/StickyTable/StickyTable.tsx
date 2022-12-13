@@ -1,5 +1,15 @@
-import { FunctionComponent, useState } from "react";
-import { createStyles, Table, ScrollArea } from "@mantine/core";
+import {
+  FunctionComponent,
+  PropsWithChildren,
+  useState,
+} from "react";
+import {
+  createStyles,
+  Table,
+  ScrollArea,
+  Center,
+} from "@mantine/core";
+import { IconLoader } from "@tabler/icons";
 
 const useStyles = createStyles(theme => ({
   header: {
@@ -29,16 +39,18 @@ const useStyles = createStyles(theme => ({
   },
 }));
 
-interface StickyTableProps<
-  T extends Map<string, string> = Map<string, string>
-> {
-  columns: T;
-  items: T[];
+interface StickyTableProps {
+  columns: Map<string, string>;
+  items: Map<string, string>[];
+  loading: boolean;
+  captionText?: string;
 }
 
 const StickyTable: FunctionComponent<StickyTableProps> = ({
   items,
   columns,
+  loading,
+  captionText,
 }) => {
   const { classes, cx } = useStyles();
   const [scrolled, setScrolled] = useState(false);
@@ -59,12 +71,51 @@ const StickyTable: FunctionComponent<StickyTableProps> = ({
     rows.push(<tr key={index + 1}>{row}</tr>);
   }
 
+  const renderTableBody = () => {
+    const Placeholder: FunctionComponent<PropsWithChildren> = ({
+      children,
+    }) => (
+      <tr>
+        <td colSpan={cols.length}>{children}</td>
+      </tr>
+    );
+
+    if (loading) {
+      return (
+        <Placeholder>
+          <Center fs="italic">
+            Carregando...{" "}
+            <IconLoader
+              style={{ animation: "spin 2s linear infinite" }}
+            />
+          </Center>
+        </Placeholder>
+      );
+    }
+
+    if (rows.length === 0) {
+      return (
+        <Placeholder>
+          <Center fs="italic">Sem resultados</Center>
+        </Placeholder>
+      );
+    }
+
+    return rows;
+  };
+
   return (
     <ScrollArea
       sx={{ height: 600 }}
       onScrollPositionChange={({ y }) => setScrolled(y !== 0)}
     >
-      <Table sx={{ minWidth: 720 }}>
+      <Table
+        highlightOnHover
+        withColumnBorders
+        captionSide="top"
+        sx={{ minWidth: 720 }}
+      >
+        <caption>{captionText || ""}</caption>
         <thead
           className={cx(classes.header, {
             [classes.scrolled]: scrolled,
@@ -72,7 +123,7 @@ const StickyTable: FunctionComponent<StickyTableProps> = ({
         >
           <tr>{cols}</tr>
         </thead>
-        <tbody>{rows}</tbody>
+        <tbody>{renderTableBody()}</tbody>
       </Table>
     </ScrollArea>
   );
