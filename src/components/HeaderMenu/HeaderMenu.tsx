@@ -65,6 +65,11 @@ const useStyles = createStyles(theme => ({
           : theme.colors.gray[0],
     },
   },
+  linksMenu: {
+    [theme.fn.smallerThan("sm")]: {
+      width: "calc(100vw / 1.125) !important",
+    },
+  },
 }));
 
 const HeaderMenu: FunctionComponent<HeaderProps> = ({
@@ -128,7 +133,9 @@ const HeaderMenu: FunctionComponent<HeaderProps> = ({
               {link.label}
             </Button>
           </Menu.Target>
-          <Menu.Dropdown>{menuItems}</Menu.Dropdown>
+          <Menu.Dropdown className={classes.linksMenu}>
+            {menuItems}
+          </Menu.Dropdown>
         </Menu>
       );
     }
