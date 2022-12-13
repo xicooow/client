@@ -24,18 +24,15 @@ import {
 } from "react";
 
 import api from "../api";
-import { ShoppingList } from "../types";
 import { QUERY_KEYS } from "../constants";
 import { useStore } from "../context/store";
 import StickyTable from "../components/StickyTable";
 import CustomIconLoader from "../components/CustomIconLoader";
-
-type ReducedShoppingLists = Pick<
+import {
+  ReducedShoppingLists,
   ShoppingList,
-  "_id" | "title" | "cre_date"
->[];
-
-type ShoppingListPayload = Pick<ShoppingList, "title">;
+  ShoppingListPayload,
+} from "../types";
 
 const ShoppingListForm: FunctionComponent<{
   refetch: () => Promise<

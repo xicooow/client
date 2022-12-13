@@ -1,3 +1,7 @@
+/**
+ * INTERFACES
+ */
+
 export interface Methods {
   cleanup: () => void;
   setUser: (user: State["user"]) => void;
@@ -11,15 +15,6 @@ export interface Context {
 export interface State {
   user: Account;
 }
-
-export type Action =
-  | {
-      type: "SET_USER";
-      payload: State["user"];
-    }
-  | {
-      type: "CLEANUP";
-    };
 
 export interface WithId {
   _id: string;
@@ -71,3 +66,30 @@ export interface ShoppingItem extends WithId {
   fields: ShoppingList["columns"];
   cre_date: string;
 }
+
+export interface StickyTableProps {
+  columns: Map<string, string>;
+  items: Map<string, string>[];
+  loading: boolean;
+  captionText?: string;
+}
+
+/**
+ * TYPES
+ */
+
+export type Action =
+  | {
+      type: "SET_USER";
+      payload: State["user"];
+    }
+  | {
+      type: "CLEANUP";
+    };
+
+export type ReducedShoppingLists = Pick<
+  ShoppingList,
+  "_id" | "title" | "cre_date"
+>[];
+
+export type ShoppingListPayload = Pick<ShoppingList, "title">;

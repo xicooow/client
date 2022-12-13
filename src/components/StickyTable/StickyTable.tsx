@@ -11,6 +11,7 @@ import {
   Text,
 } from "@mantine/core";
 
+import { StickyTableProps } from "../../types";
 import CustomIconLoader from "../CustomIconLoader";
 
 const useStyles = createStyles(theme => ({
@@ -40,13 +41,6 @@ const useStyles = createStyles(theme => ({
     boxShadow: theme.shadows.sm,
   },
 }));
-
-interface StickyTableProps {
-  columns: Map<string, string>;
-  items: Map<string, string>[];
-  loading: boolean;
-  captionText?: string;
-}
 
 const StickyTable: FunctionComponent<StickyTableProps> = ({
   items,
