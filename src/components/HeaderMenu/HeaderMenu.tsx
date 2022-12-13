@@ -161,6 +161,7 @@ const HeaderMenu: FunctionComponent<HeaderProps> = ({
       <Container>
         <div className={classes.inner}>
           <Button
+            px={0}
             size="md"
             color="dark"
             variant="subtle"
