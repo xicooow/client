@@ -21,14 +21,16 @@ export type Action =
       type: "CLEANUP";
     };
 
-export type WithId<T> = T & { _id: string };
+export interface WithId {
+  _id: string;
+}
 
 export interface CommonShape {
   name: string;
   email: string;
 }
 
-export interface Account extends WithId<CommonShape> {
+export interface Account extends WithId, CommonShape {
   cre_date: string;
 }
 
@@ -53,4 +55,19 @@ export interface HeaderLink {
 
 export interface HeaderProps {
   links: HeaderLink[];
+}
+
+export interface ShoppingList extends WithId {
+  title: string;
+  cre_date: string;
+  items: ShoppingItem[];
+  user: string;
+  columns: Map<string, string>;
+  status: "active" | "inactive" | "archived";
+}
+
+export interface ShoppingItem extends WithId {
+  done: boolean;
+  fields: ShoppingList["columns"];
+  cre_date: string;
 }
