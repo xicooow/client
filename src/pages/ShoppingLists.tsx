@@ -1,9 +1,9 @@
 import dayjs from "dayjs";
 import { useForm } from "@mantine/form";
-import { useSearchParams } from "react-router-dom";
 import { showNotification } from "@mantine/notifications";
 import { closeAllModals, openModal } from "@mantine/modals";
 import { IconCheck, IconExclamationMark } from "@tabler/icons";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   QueryObserverResult,
   useMutation,
@@ -24,8 +24,8 @@ import {
 } from "react";
 
 import api from "../api";
-import { QUERY_KEYS } from "../constants";
 import { useStore } from "../context/store";
+import { PAGES, QUERY_KEYS } from "../constants";
 import StickyTable from "../components/StickyTable";
 import CustomIconLoader from "../components/CustomIconLoader";
 import {
@@ -100,6 +100,7 @@ const ShoppingListForm: FunctionComponent<{
 const ShoppingLists: FunctionComponent = () => {
   const { user } = useStore();
 
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const statusParam = searchParams.get("status");
   const isActive = statusParam === "active";
@@ -185,6 +186,14 @@ const ShoppingLists: FunctionComponent = () => {
         items={items}
         columns={columns}
         loading={isFetching}
+        onSelect={item => {
+          const shoppingListId = item.get("_id");
+          if (shoppingListId) {
+            navigate(
+              `/${PAGES.SHOPPING_LIST}/${shoppingListId}`
+            );
+          }
+        }}
       />
     </>
   );

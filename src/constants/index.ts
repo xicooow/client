@@ -4,6 +4,7 @@ export const PAGES = {
   LOGIN: "login",
   ACCOUNT: "account",
   REGISTER: "register",
+  SHOPPING_LIST: "shoppingList",
   SHOPPING_LISTS: "shoppingLists",
 };
 export const HEADER_LINKS: HeaderLink[] = [

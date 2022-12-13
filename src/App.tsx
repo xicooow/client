@@ -12,6 +12,7 @@ const Login = lazy(() => import("./pages/Login"));
 const Account = lazy(() => import("./pages/Account"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Register = lazy(() => import("./pages/Register"));
+const ShoppingList = lazy(() => import("./pages/ShoppingList"));
 const ShoppingLists = lazy(
   () => import("./pages/ShoppingLists")
 );
@@ -30,6 +31,10 @@ const App: FunctionComponent = () => {
         {
           path: PAGES.SHOPPING_LISTS,
           element: <ShoppingLists />,
+        },
+        {
+          path: `${PAGES.SHOPPING_LIST}/:shoppingListId`,
+          element: <ShoppingList />,
         },
       ],
     },

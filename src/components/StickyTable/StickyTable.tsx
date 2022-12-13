@@ -37,6 +37,9 @@ const useStyles = createStyles(theme => ({
       }`,
     },
   },
+  clickable: {
+    cursor: "pointer",
+  },
   scrolled: {
     boxShadow: theme.shadows.sm,
   },
@@ -47,6 +50,7 @@ const StickyTable: FunctionComponent<StickyTableProps> = ({
   columns,
   loading,
   captionText,
+  onSelect,
 }) => {
   const { classes, cx } = useStyles();
   const [scrolled, setScrolled] = useState(false);
@@ -61,7 +65,15 @@ const StickyTable: FunctionComponent<StickyTableProps> = ({
     const row: JSX.Element[] = [];
 
     for (const [colName] of columns.entries()) {
-      row.push(<td key={colName}>{item.get(colName)}</td>);
+      row.push(
+        <td
+          key={colName}
+          className={classes.clickable}
+          onClick={() => onSelect && onSelect(item)}
+        >
+          {item.get(colName)}
+        </td>
+      );
     }
 
     rows.push(<tr key={index + 1}>{row}</tr>);

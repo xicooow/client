@@ -72,6 +72,7 @@ export interface StickyTableProps {
   items: Map<string, string>[];
   loading: boolean;
   captionText?: string;
+  onSelect?: (item: Map<string, string>) => void;
 }
 
 /**
