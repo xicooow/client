@@ -12,16 +12,15 @@ import {
   Tooltip,
 } from "@mantine/core";
 import {
-  IconLoader,
   IconAt,
   IconCalendar,
   IconId,
   IconCopy,
 } from "@tabler/icons";
 
-import { PAGES } from "./";
 import { useStore } from "../context/store";
-import { AUTH_TOKEN_KEY } from "../constants";
+import { AUTH_TOKEN_KEY, PAGES } from "../constants";
+import CustomIconLoader from "../components/CustomIconLoader";
 
 const useStyles = createStyles(theme => ({
   link: {
@@ -57,12 +56,7 @@ const AccountComponent: FunctionComponent = () => {
   if (isLoading) {
     content = (
       <Group position="center">
-        <Text>
-          Carregando...{" "}
-          <IconLoader
-            style={{ animation: "spin 2s linear infinite" }}
-          />
-        </Text>
+        <CustomIconLoader text="Carregando..." />
       </Group>
     );
   } else {

@@ -1,5 +1,4 @@
-import { PAGES } from "../pages";
-import { AUTH_TOKEN_KEY, API_URL } from "../constants";
+import { AUTH_TOKEN_KEY, API_URL, PAGES } from "../constants";
 
 const getResponseError = async (text: Promise<string>) => {
   try {
@@ -38,7 +37,11 @@ export default <R = any>(
       ...(method !== "GET" && method !== "DELETE" && { body }),
     });
 
-    if (response.status === 401) {
+    if (response.status === 403) {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+    }
+
+    if (response.status === 401 || response.status === 403) {
       window.location.href = `/${PAGES.LOGIN}`;
     }
 

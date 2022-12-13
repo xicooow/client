@@ -9,7 +9,7 @@ import {
   createStyles,
 } from "@mantine/core";
 
-import { PAGES } from "./";
+import { PAGES } from "../constants";
 
 const useStyles = createStyles(theme => ({
   root: {

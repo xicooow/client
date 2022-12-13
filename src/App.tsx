@@ -1,16 +1,21 @@
-import { FunctionComponent } from "react";
+import { FunctionComponent, lazy } from "react";
 import {
   RouterProvider,
   createBrowserRouter,
 } from "react-router-dom";
 
-import { PAGES } from "./pages";
+import { PAGES } from "./constants";
 
 import Root from "./pages/Root";
-import Login from "./pages/Login";
-import Account from "./pages/Account";
-import NotFound from "./pages/NotFound";
-import Register from "./pages/Register";
+
+const Login = lazy(() => import("./pages/Login"));
+const Account = lazy(() => import("./pages/Account"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Register = lazy(() => import("./pages/Register"));
+const ShoppingList = lazy(() => import("./pages/ShoppingList"));
+const ShoppingLists = lazy(
+  () => import("./pages/ShoppingLists")
+);
 
 const App: FunctionComponent = () => {
   const router = createBrowserRouter([
@@ -23,6 +28,14 @@ const App: FunctionComponent = () => {
         { path: PAGES.LOGIN, element: <Login /> },
         { path: PAGES.ACCOUNT, element: <Account /> },
         { path: PAGES.REGISTER, element: <Register /> },
+        {
+          path: PAGES.SHOPPING_LISTS,
+          element: <ShoppingLists />,
+        },
+        {
+          path: `${PAGES.SHOPPING_LIST}/:shoppingListId`,
+          element: <ShoppingList />,
+        },
       ],
     },
   ]);

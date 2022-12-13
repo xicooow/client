@@ -1,7 +1,6 @@
 import { FunctionComponent } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { IconLoader } from "@tabler/icons";
 import { useForm } from "@mantine/form";
 import {
   Paper,
@@ -12,8 +11,9 @@ import {
 } from "@mantine/core";
 
 import api from "../api";
-import { PAGES } from "./";
+import { PAGES } from "../constants";
 import { Account, RegistryPayload } from "../types";
+import CustomIconLoader from "../components/CustomIconLoader";
 
 const Register: FunctionComponent = () => {
   const navigate = useNavigate();
@@ -87,13 +87,7 @@ const Register: FunctionComponent = () => {
             type="submit"
             disabled={isLoading || !form.isDirty()}
           >
-            {isLoading ? (
-              <IconLoader
-                style={{ animation: "spin 2s linear infinite" }}
-              />
-            ) : (
-              "Criar"
-            )}
+            {isLoading ? <CustomIconLoader /> : "Criar"}
           </Button>
         </Group>
       </form>

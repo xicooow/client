@@ -11,10 +11,13 @@ import {
   Header,
   Menu,
   Group,
-  Center,
+  Stack,
   Burger,
   Container,
   Button,
+  Drawer,
+  ScrollArea,
+  Divider,
 } from "@mantine/core";
 
 import api from "../../api";
@@ -42,8 +45,9 @@ const useStyles = createStyles(theme => ({
     },
   },
   link: {
-    display: "block",
+    display: "flex",
     padding: "8px 12px",
+    border: "none",
     borderRadius: theme.radius.sm,
     textDecoration: "none",
     color:
@@ -52,6 +56,7 @@ const useStyles = createStyles(theme => ({
         : theme.colors.gray[7],
     fontSize: theme.fontSizes.sm,
     fontWeight: 500,
+    height: 37,
 
     "&:hover": {
       backgroundColor:
@@ -60,19 +65,21 @@ const useStyles = createStyles(theme => ({
           : theme.colors.gray[0],
     },
   },
-  linkLabel: {
-    marginRight: 5,
+  linksMenu: {
+    [theme.fn.smallerThan("sm")]: {
+      width: "calc(100vw / 1.125) !important",
+    },
   },
 }));
 
 const HeaderMenu: FunctionComponent<HeaderProps> = ({
   links,
 }) => {
-  const { classes } = useStyles();
+  const { classes, theme } = useStyles();
   const { user, setUser } = useStore();
   const [opened, { toggle }] = useDisclosure(false);
 
-  const logged = useQuery<Account, Error>(
+  const { refetch } = useQuery<Account, Error>(
     QUERY_KEYS.ACCOUNT,
     async () => {
       const request = api<Account>("logged");
@@ -87,53 +94,62 @@ const HeaderMenu: FunctionComponent<HeaderProps> = ({
 
   useEffect(() => {
     if (!user._id) {
-      logged.refetch();
+      refetch();
     }
   }, [user._id]);
+
+  const handleLinkClick = () => {
+    if (opened) {
+      toggle();
+    }
+  };
 
   const items = links.map(link => {
     const menuItems = link.sublinks.map((item, index) => (
       <Fragment key={index}>
-        <Link to={item.url} />
+        <Link
+          to={item.url}
+          className={classes.link}
+          onClick={handleLinkClick}
+        >
+          {item.label}
+        </Link>
       </Fragment>
     ));
 
     if (menuItems.length > 0) {
       return (
         <Menu
-          trigger="hover"
+          trigger="click"
           key={link.label}
           exitTransitionDuration={0}
         >
           <Menu.Target>
-            <Link
-              to={link.url}
+            <Button
+              variant="subtle"
               className={classes.link}
+              rightIcon={<IconChevronDown size={18} />}
             >
-              <Center>
-                <span className={classes.linkLabel}>
-                  {link.label}
-                </span>
-                <IconChevronDown
-                  size={12}
-                  stroke={1.5}
-                />
-              </Center>
-            </Link>
+              {link.label}
+            </Button>
           </Menu.Target>
-          <Menu.Dropdown>{menuItems}</Menu.Dropdown>
+          <Menu.Dropdown className={classes.linksMenu}>
+            {menuItems}
+          </Menu.Dropdown>
         </Menu>
       );
     }
 
     return (
-      <Link
-        to={link.url}
-        key={link.url}
-        className={classes.link}
-      >
-        {link.label}
-      </Link>
+      <Fragment key={link.url}>
+        <Link
+          to={link.url}
+          className={classes.link}
+          onClick={handleLinkClick}
+        >
+          {link.label}
+        </Link>
+      </Fragment>
     );
   });
 
@@ -145,6 +161,7 @@ const HeaderMenu: FunctionComponent<HeaderProps> = ({
       <Container>
         <div className={classes.inner}>
           <Button
+            px={0}
             size="md"
             color="dark"
             variant="subtle"
@@ -153,7 +170,7 @@ const HeaderMenu: FunctionComponent<HeaderProps> = ({
             Mercadin
           </Button>
           <Group
-            spacing={5}
+            spacing="sm"
             className={classes.links}
           >
             {items}
@@ -165,6 +182,35 @@ const HeaderMenu: FunctionComponent<HeaderProps> = ({
             className={classes.burger}
           />
         </div>
+        <Drawer
+          size="100%"
+          padding="md"
+          title="Menu"
+          opened={opened}
+          zIndex={1000000}
+          onClose={toggle}
+        >
+          <ScrollArea
+            mx="-md"
+            sx={{ height: `calc(100vh - ${HEADER_HEIGHT}px)` }}
+          >
+            <Divider
+              my="sm"
+              color={
+                theme.colorScheme === "dark"
+                  ? theme.colors.dark[6]
+                  : theme.colors.gray[0]
+              }
+            />
+            <Stack
+              px="md"
+              spacing="sm"
+              align="stretch"
+            >
+              {items}
+            </Stack>
+          </ScrollArea>
+        </Drawer>
       </Container>
     </Header>
   );
