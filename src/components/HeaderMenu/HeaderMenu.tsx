@@ -79,7 +79,7 @@ const HeaderMenu: FunctionComponent<HeaderProps> = ({
   const { user, setUser } = useStore();
   const [opened, { toggle }] = useDisclosure(false);
 
-  const logged = useQuery<Account, Error>(
+  const { refetch } = useQuery<Account, Error>(
     QUERY_KEYS.ACCOUNT,
     async () => {
       const request = api<Account>("logged");
@@ -94,7 +94,7 @@ const HeaderMenu: FunctionComponent<HeaderProps> = ({
 
   useEffect(() => {
     if (!user._id) {
-      logged.refetch();
+      refetch();
     }
   }, [user._id]);
 
