@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Account from "./pages/Account";
 import NotFound from "./pages/NotFound";
 import Register from "./pages/Register";
+import ShoppingLists from "./pages/ShoppingLists";
 
 const App: FunctionComponent = () => {
   const router = createBrowserRouter([
@@ -23,6 +24,10 @@ const App: FunctionComponent = () => {
         { path: PAGES.LOGIN, element: <Login /> },
         { path: PAGES.ACCOUNT, element: <Account /> },
         { path: PAGES.REGISTER, element: <Register /> },
+        {
+          path: PAGES.SHOPPING_LISTS,
+          element: <ShoppingLists />,
+        },
       ],
     },
   ]);

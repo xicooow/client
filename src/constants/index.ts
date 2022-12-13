@@ -4,12 +4,27 @@ export const PAGES = {
   LOGIN: "login",
   ACCOUNT: "account",
   REGISTER: "register",
+  SHOPPING_LISTS: "shoppingLists",
 };
 export const HEADER_LINKS: HeaderLink[] = [
   {
     url: `/${PAGES.ACCOUNT}`,
     label: "Conta",
     sublinks: [],
+  },
+  {
+    url: "",
+    label: "Listas",
+    sublinks: [
+      {
+        url: `/${PAGES.SHOPPING_LISTS}?status=active`,
+        label: "Ativas",
+      },
+      {
+        url: `/${PAGES.SHOPPING_LISTS}?status=inactive`,
+        label: "Inativas",
+      },
+    ],
   },
 ];
 export const QUERY_KEYS = {
