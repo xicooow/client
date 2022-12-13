@@ -11,7 +11,7 @@ import {
   Header,
   Menu,
   Group,
-  Center,
+  Stack,
   Burger,
   Container,
   Button,
@@ -45,8 +45,9 @@ const useStyles = createStyles(theme => ({
     },
   },
   link: {
-    display: "block",
+    display: "flex",
     padding: "8px 12px",
+    border: "none",
     borderRadius: theme.radius.sm,
     textDecoration: "none",
     color:
@@ -55,6 +56,7 @@ const useStyles = createStyles(theme => ({
         : theme.colors.gray[7],
     fontSize: theme.fontSizes.sm,
     fontWeight: 500,
+    height: 37,
 
     "&:hover": {
       backgroundColor:
@@ -62,9 +64,6 @@ const useStyles = createStyles(theme => ({
           ? theme.colors.dark[6]
           : theme.colors.gray[0],
     },
-  },
-  linkLabel: {
-    marginRight: 5,
   },
 }));
 
@@ -107,27 +106,27 @@ const HeaderMenu: FunctionComponent<HeaderProps> = ({
           to={item.url}
           className={classes.link}
           onClick={handleLinkClick}
-        />
+        >
+          {item.label}
+        </Link>
       </Fragment>
     ));
 
     if (menuItems.length > 0) {
       return (
         <Menu
-          trigger="hover"
+          trigger="click"
           key={link.label}
           exitTransitionDuration={0}
         >
           <Menu.Target>
-            <Center>
-              <span className={classes.linkLabel}>
-                {link.label}
-              </span>
-              <IconChevronDown
-                size={12}
-                stroke={1.5}
-              />
-            </Center>
+            <Button
+              variant="subtle"
+              className={classes.link}
+              rightIcon={<IconChevronDown size={18} />}
+            >
+              {link.label}
+            </Button>
           </Menu.Target>
           <Menu.Dropdown>{menuItems}</Menu.Dropdown>
         </Menu>
@@ -163,7 +162,7 @@ const HeaderMenu: FunctionComponent<HeaderProps> = ({
             Mercadin
           </Button>
           <Group
-            spacing={5}
+            spacing="sm"
             className={classes.links}
           >
             {items}
@@ -195,12 +194,13 @@ const HeaderMenu: FunctionComponent<HeaderProps> = ({
                   : theme.colors.gray[0]
               }
             />
-            <Group
+            <Stack
               px="md"
-              spacing={5}
+              spacing="sm"
+              align="stretch"
             >
               {items}
-            </Group>
+            </Stack>
           </ScrollArea>
         </Drawer>
       </Container>
