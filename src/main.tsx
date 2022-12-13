@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { MantineProvider } from "@mantine/core";
+import { ModalsProvider } from "@mantine/modals";
 import { NotificationsProvider } from "@mantine/notifications";
 import {
   QueryClient,
@@ -49,11 +50,13 @@ ReactDOM.createRoot(
         withGlobalStyles
         withNormalizeCSS
       >
-        <NotificationsProvider>
-          <Store>
-            <App />
-          </Store>
-        </NotificationsProvider>
+        <ModalsProvider>
+          <NotificationsProvider>
+            <Store>
+              <App />
+            </Store>
+          </NotificationsProvider>
+        </ModalsProvider>
       </MantineProvider>
     </QueryClientProvider>
   </React.StrictMode>
