@@ -8,8 +8,10 @@ import {
   Table,
   ScrollArea,
   Center,
+  Text,
 } from "@mantine/core";
-import { IconLoader } from "@tabler/icons";
+
+import CustomIconLoader from "../CustomIconLoader";
 
 const useStyles = createStyles(theme => ({
   header: {
@@ -76,19 +78,16 @@ const StickyTable: FunctionComponent<StickyTableProps> = ({
       children,
     }) => (
       <tr>
-        <td colSpan={cols.length}>{children}</td>
+        <td colSpan={cols.length}>
+          <Center>{children}</Center>
+        </td>
       </tr>
     );
 
     if (loading) {
       return (
         <Placeholder>
-          <Center fs="italic">
-            Carregando...{" "}
-            <IconLoader
-              style={{ animation: "spin 2s linear infinite" }}
-            />
-          </Center>
+          <CustomIconLoader text="Carregando..." />
         </Placeholder>
       );
     }
@@ -96,7 +95,7 @@ const StickyTable: FunctionComponent<StickyTableProps> = ({
     if (rows.length === 0) {
       return (
         <Placeholder>
-          <Center fs="italic">Sem resultados</Center>
+          <Text size="md">Sem resultados</Text>
         </Placeholder>
       );
     }
@@ -110,6 +109,7 @@ const StickyTable: FunctionComponent<StickyTableProps> = ({
       onScrollPositionChange={({ y }) => setScrolled(y !== 0)}
     >
       <Table
+        fontSize="md"
         highlightOnHover
         withColumnBorders
         captionSide="top"
