@@ -1,4 +1,4 @@
-import { FunctionComponent } from "react";
+import { FunctionComponent, lazy } from "react";
 import {
   RouterProvider,
   createBrowserRouter,
@@ -7,11 +7,14 @@ import {
 import { PAGES } from "./constants";
 
 import Root from "./pages/Root";
-import Login from "./pages/Login";
-import Account from "./pages/Account";
-import NotFound from "./pages/NotFound";
-import Register from "./pages/Register";
-import ShoppingLists from "./pages/ShoppingLists";
+
+const Login = lazy(() => import("./pages/Login"));
+const Account = lazy(() => import("./pages/Account"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Register = lazy(() => import("./pages/Register"));
+const ShoppingLists = lazy(
+  () => import("./pages/ShoppingLists")
+);
 
 const App: FunctionComponent = () => {
   const router = createBrowserRouter([

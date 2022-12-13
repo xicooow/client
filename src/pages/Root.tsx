@@ -1,9 +1,17 @@
 import { Container } from "@mantine/core";
-import { FunctionComponent, useMemo } from "react";
 import { Outlet, useLocation } from "react-router-dom";
+import {
+  FunctionComponent,
+  useMemo,
+  Suspense,
+  lazy,
+} from "react";
 
 import { HEADER_LINKS, PAGES } from "../constants";
-import HeaderMenu from "../components/HeaderMenu";
+
+const HeaderMenu = lazy(
+  () => import("../components/HeaderMenu")
+);
 
 const Root: FunctionComponent = () => {
   const { pathname } = useLocation();
@@ -18,9 +26,15 @@ const Root: FunctionComponent = () => {
 
   return (
     <>
-      {shouldRenderHeader && <HeaderMenu links={HEADER_LINKS} />}
+      {shouldRenderHeader && (
+        <Suspense>
+          <HeaderMenu links={HEADER_LINKS} />
+        </Suspense>
+      )}
       <Container py="lg">
-        <Outlet />
+        <Suspense>
+          <Outlet />
+        </Suspense>
       </Container>
     </>
   );
