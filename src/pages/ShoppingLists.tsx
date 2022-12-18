@@ -15,12 +15,15 @@ import {
   Mark,
   TextInput,
   Title,
+  Stack,
+  createStyles,
 } from "@mantine/core";
 import {
   FunctionComponent,
   useEffect,
   useState,
   useMemo,
+  ChangeEvent,
 } from "react";
 
 import api from "../api";
@@ -97,14 +100,27 @@ const ShoppingListForm: FunctionComponent<{
   );
 };
 
+const useStyles = createStyles(theme => ({
+  filter: {
+    [theme.fn.smallerThan("sm")]: {
+      alignItems: "stretch",
+    },
+    [theme.fn.largerThan("sm")]: {
+      alignItems: "flex-start",
+    },
+  },
+}));
+
 const ShoppingLists: FunctionComponent = () => {
   const { user } = useStore();
+  const { classes } = useStyles();
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const statusParam = searchParams.get("status");
   const isActive = statusParam === "active";
 
+  const [filter, setFilter] = useState("");
   const [shoppingLists, setShoppingLists] =
     useState<ReducedShoppingLists>([]);
 
@@ -133,15 +149,26 @@ const ShoppingLists: FunctionComponent = () => {
 
   const items = useMemo(
     () =>
-      shoppingLists.map(list => {
-        const formatted: typeof list = {
-          ...list,
-          cre_date: dayjs(list.cre_date).format("lll"),
-        };
+      shoppingLists.reduce<Map<string, string>[]>(
+        (previous, current) => {
+          if (
+            current.title
+              .toLowerCase()
+              .includes(filter.toLowerCase())
+          ) {
+            const formatted: typeof current = {
+              ...current,
+              cre_date: dayjs(current.cre_date).format("lll"),
+            };
 
-        return new Map(Object.entries(formatted));
-      }),
-    [shoppingLists]
+            previous.push(new Map(Object.entries(formatted)));
+          }
+
+          return previous;
+        },
+        []
+      ),
+    [shoppingLists, filter]
   );
 
   const columns = new Map([
@@ -156,9 +183,14 @@ const ShoppingLists: FunctionComponent = () => {
 
   const status = statuses.get(statusParam as string);
 
+  let filterDebounce: number | null = null;
+
   return (
     <>
-      <Group position="apart">
+      <Group
+        noWrap
+        position="apart"
+      >
         <Title
           size="h2"
           className="text-ellipsis"
@@ -185,6 +217,26 @@ const ShoppingLists: FunctionComponent = () => {
           </Button>
         )}
       </Group>
+      <Stack
+        my="xl"
+        className={classes.filter}
+      >
+        <TextInput
+          type="text"
+          placeholder="Pesquisar por nome"
+          onChange={(e: ChangeEvent<HTMLInputElement>) => {
+            const { value } = e.target;
+            if (filterDebounce) {
+              clearTimeout(filterDebounce);
+            }
+
+            filterDebounce = setTimeout(() => {
+              clearTimeout(filterDebounce as number);
+              setFilter(value);
+            }, 750);
+          }}
+        />
+      </Stack>
       <StickyTable
         items={items}
         columns={columns}

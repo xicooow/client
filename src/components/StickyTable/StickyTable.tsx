@@ -126,7 +126,7 @@ const StickyTable: FunctionComponent<StickyTableProps> = ({
         withColumnBorders
         captionSide="top"
       >
-        <caption>{captionText || ""}</caption>
+        {captionText && <caption>{captionText}</caption>}
         <thead
           className={cx(classes.header, {
             [classes.scrolled]: scrolled,
