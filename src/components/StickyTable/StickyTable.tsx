@@ -37,6 +37,9 @@ const useStyles = createStyles(theme => ({
       }`,
     },
   },
+  borderless: {
+    border: "none !important",
+  },
   clickable: {
     cursor: "pointer",
   },
@@ -84,7 +87,10 @@ const StickyTable: FunctionComponent<StickyTableProps> = ({
       children,
     }) => (
       <tr>
-        <td colSpan={cols.length}>
+        <td
+          colSpan={cols.length}
+          className={classes.borderless}
+        >
           <Center>{children}</Center>
         </td>
       </tr>
@@ -119,7 +125,6 @@ const StickyTable: FunctionComponent<StickyTableProps> = ({
         highlightOnHover
         withColumnBorders
         captionSide="top"
-        sx={{ minWidth: 720 }}
       >
         <caption>{captionText || ""}</caption>
         <thead

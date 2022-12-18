@@ -145,7 +145,6 @@ const ShoppingLists: FunctionComponent = () => {
   );
 
   const columns = new Map([
-    ["_id", "#"],
     ["title", "Lista"],
     ["cre_date", "Data de Criação"],
   ]);
@@ -160,15 +159,19 @@ const ShoppingLists: FunctionComponent = () => {
   return (
     <>
       <Group position="apart">
-        <Title size="h2">
+        <Title
+          size="h2"
+          className="text-ellipsis"
+        >
           Listas{" "}
           <Mark color={isActive ? "blue" : "gray"}>
             {status}
           </Mark>{" "}
-          do usuário {user.name}
+          do usuário <span title={user.name}>{user.name}</span>
         </Title>
         {isActive && (
           <Button
+            ml="auto"
             variant="gradient"
             onClick={() =>
               openModal({

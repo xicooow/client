@@ -46,6 +46,14 @@ ReactDOM.createRoot(
         theme={{
           colorScheme: "dark",
           fontFamily: "Ubuntu, sans-serif",
+          globalStyles: () => ({
+            ".text-ellipsis": {
+              maxWidth: "fit-content",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+            },
+          }),
         }}
         withGlobalStyles
         withNormalizeCSS
