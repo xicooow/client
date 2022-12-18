@@ -8,6 +8,7 @@ import {
 } from "react";
 
 import { HEADER_LINKS, PAGES } from "../constants";
+import SplashScreen from "../components/SplashScreen";
 
 const HeaderMenu = lazy(
   () => import("../components/HeaderMenu")
@@ -32,7 +33,7 @@ const Root: FunctionComponent = () => {
         </Suspense>
       )}
       <Container py="lg">
-        <Suspense>
+        <Suspense fallback={<SplashScreen />}>
           <Outlet />
         </Suspense>
       </Container>

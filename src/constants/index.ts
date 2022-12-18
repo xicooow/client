@@ -7,6 +7,7 @@ export const PAGES = {
   SHOPPING_LIST: "shoppingList",
   SHOPPING_LISTS: "shoppingLists",
 };
+export const HEADER_HEIGHT = 56;
 export const HEADER_LINKS: HeaderLink[] = [
   {
     url: `/${PAGES.ACCOUNT}`,

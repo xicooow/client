@@ -21,11 +21,9 @@ import {
 } from "@mantine/core";
 
 import api from "../../api";
-import { QUERY_KEYS } from "../../constants";
 import { useStore } from "../../context/store";
 import { Account, HeaderProps } from "../../types";
-
-const HEADER_HEIGHT = 56;
+import { HEADER_HEIGHT, QUERY_KEYS } from "../../constants";
 
 const useStyles = createStyles(theme => ({
   inner: {
