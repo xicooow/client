@@ -28,6 +28,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       ...common,
+      refetchOnMount: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
     },

@@ -15,7 +15,8 @@ const getResponseError = async (text: Promise<string>) => {
 
 export default <R = any>(
   endpoint: string,
-  options?: RequestInit
+  options?: RequestInit,
+  signal?: AbortSignal
 ) => {
   const authToken = localStorage.getItem(AUTH_TOKEN_KEY);
 
@@ -33,6 +34,7 @@ export default <R = any>(
   return async () => {
     const response = await fetch(`${API_URL}/${endpoint}`, {
       method,
+      signal,
       headers,
       ...(method !== "GET" && method !== "DELETE" && { body }),
     });

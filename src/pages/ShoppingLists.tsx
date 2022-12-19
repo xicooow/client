@@ -124,7 +124,7 @@ const ShoppingLists: FunctionComponent = () => {
   const [shoppingLists, setShoppingLists] =
     useState<ReducedShoppingLists>([]);
 
-  const { isFetching, isFetched, refetch } = useQuery<
+  const { isFetching, refetch } = useQuery<
     ReducedShoppingLists,
     Error
   >(
@@ -142,7 +142,7 @@ const ShoppingLists: FunctionComponent = () => {
   );
 
   useEffect(() => {
-    if (isFetched && statusParam) {
+    if (!isFetching && statusParam) {
       refetch();
     }
   }, [statusParam]);
