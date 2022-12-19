@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { Fragment, FunctionComponent, useEffect } from "react";
@@ -73,8 +73,9 @@ const useStyles = createStyles(theme => ({
 const HeaderMenu: FunctionComponent<HeaderProps> = ({
   links,
 }) => {
-  const { classes, theme } = useStyles();
+  const navigate = useNavigate();
   const { user, setUser } = useStore();
+  const { classes, theme } = useStyles();
   const [opened, { toggle }] = useDisclosure(false);
 
   const { refetch } = useQuery<Account, Error>(
@@ -96,23 +97,22 @@ const HeaderMenu: FunctionComponent<HeaderProps> = ({
     }
   }, [user._id]);
 
-  const handleLinkClick = () => {
+  const handleLinkClick = (url: string) => {
     if (opened) {
       toggle();
     }
+
+    navigate(url);
   };
 
   const items = links.map(link => {
     const menuItems = link.sublinks.map((item, index) => (
-      <Fragment key={index}>
-        <Link
-          to={item.url}
-          className={classes.link}
-          onClick={handleLinkClick}
-        >
-          {item.label}
-        </Link>
-      </Fragment>
+      <Menu.Item
+        key={index}
+        onClick={() => handleLinkClick(item.url)}
+      >
+        {item.label}
+      </Menu.Item>
     ));
 
     if (menuItems.length > 0) {
@@ -140,13 +140,13 @@ const HeaderMenu: FunctionComponent<HeaderProps> = ({
 
     return (
       <Fragment key={link.url}>
-        <Link
-          to={link.url}
+        <Button
+          variant="subtle"
           className={classes.link}
-          onClick={handleLinkClick}
+          onClick={() => handleLinkClick(link.url)}
         >
           {link.label}
-        </Link>
+        </Button>
       </Fragment>
     );
   });
