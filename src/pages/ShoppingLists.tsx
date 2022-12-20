@@ -1,9 +1,15 @@
 import dayjs from "dayjs";
 import { useForm } from "@mantine/form";
+import { useToggle } from "@mantine/hooks";
+import { useNavigate } from "react-router-dom";
 import { showNotification } from "@mantine/notifications";
 import { closeAllModals, openModal } from "@mantine/modals";
-import { IconCheck, IconExclamationMark } from "@tabler/icons";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import {
+  IconCheck,
+  IconExclamationMark,
+  IconMoon,
+  IconSun,
+} from "@tabler/icons";
 import {
   QueryObserverResult,
   useMutation,
@@ -15,7 +21,7 @@ import {
   Mark,
   TextInput,
   Title,
-  Stack,
+  Switch,
   createStyles,
 } from "@mantine/core";
 import {
@@ -103,10 +109,11 @@ const ShoppingListForm: FunctionComponent<{
 const useStyles = createStyles(theme => ({
   filter: {
     [theme.fn.smallerThan("sm")]: {
+      flexDirection: "column",
       alignItems: "stretch",
     },
     [theme.fn.largerThan("sm")]: {
-      alignItems: "flex-start",
+      alignItems: "flex-end",
     },
   },
 }));
@@ -116,13 +123,13 @@ const ShoppingLists: FunctionComponent = () => {
   const { classes } = useStyles();
 
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const statusParam = searchParams.get("status");
-  const isActive = statusParam === "active";
 
   const [filter, setFilter] = useState("");
   const [shoppingLists, setShoppingLists] =
     useState<ReducedShoppingLists>([]);
+  const [status, toggleStatus] = useToggle<
+    ShoppingList["status"]
+  >(["active", "inactive"]);
 
   const { isFetching, refetch } = useQuery<
     ReducedShoppingLists,
@@ -131,21 +138,20 @@ const ShoppingLists: FunctionComponent = () => {
     QUERY_KEYS.SHOPPING_LISTS,
     async () => {
       const request = api<ReducedShoppingLists>(
-        `shoppingLists?status=${statusParam}`
+        `shoppingLists?status=${status}`
       );
 
       return await request();
     },
     {
+      enabled: false,
       onSuccess: setShoppingLists,
     }
   );
 
   useEffect(() => {
-    if (!isFetching && statusParam) {
-      refetch();
-    }
-  }, [statusParam]);
+    refetch({ cancelRefetch: true });
+  }, [status]);
 
   const items = useMemo(
     () =>
@@ -181,7 +187,8 @@ const ShoppingLists: FunctionComponent = () => {
     ["inactive", "inativas"],
   ]);
 
-  const status = statuses.get(statusParam as string);
+  const isActive = status === "active";
+  const statusLabel = statuses.get(status);
 
   let filterDebounce: number | null = null;
 
@@ -197,7 +204,7 @@ const ShoppingLists: FunctionComponent = () => {
         >
           Listas{" "}
           <Mark color={isActive ? "blue" : "gray"}>
-            {status}
+            {statusLabel}
           </Mark>{" "}
           do usuário <span title={user.name}>{user.name}</span>
         </Title>
@@ -217,10 +224,17 @@ const ShoppingLists: FunctionComponent = () => {
           </Button>
         )}
       </Group>
-      <Stack
+      <Group
         my="xl"
         className={classes.filter}
       >
+        <Switch
+          size="lg"
+          checked={isActive}
+          onChange={() => toggleStatus()}
+          onLabel={<IconSun size={20} />}
+          offLabel={<IconMoon size={20} />}
+        />
         <TextInput
           type="text"
           placeholder="Pesquisar por nome"
@@ -233,10 +247,10 @@ const ShoppingLists: FunctionComponent = () => {
             filterDebounce = setTimeout(() => {
               clearTimeout(filterDebounce as number);
               setFilter(value);
-            }, 750);
+            }, 500);
           }}
         />
-      </Stack>
+      </Group>
       <StickyTable
         items={items}
         columns={columns}

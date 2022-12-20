@@ -15,18 +15,9 @@ export const HEADER_LINKS: HeaderLink[] = [
     sublinks: [],
   },
   {
-    url: "",
+    url: `/${PAGES.SHOPPING_LISTS}`,
     label: "Listas",
-    sublinks: [
-      {
-        url: `/${PAGES.SHOPPING_LISTS}?status=active`,
-        label: "Ativas",
-      },
-      {
-        url: `/${PAGES.SHOPPING_LISTS}?status=inactive`,
-        label: "Inativas",
-      },
-    ],
+    sublinks: [],
   },
 ];
 export const QUERY_KEYS = {
