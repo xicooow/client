@@ -2,7 +2,12 @@ import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
 import { IconPencil, IconTrash } from "@tabler/icons";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { FunctionComponent, MouseEvent, useMemo } from "react";
+import {
+  FunctionComponent,
+  MouseEvent,
+  PropsWithChildren,
+  useMemo,
+} from "react";
 import {
   Button,
   Center,
@@ -11,6 +16,7 @@ import {
   Group,
   Divider,
   createStyles,
+  Title,
 } from "@mantine/core";
 
 import api from "../api";
@@ -150,7 +156,7 @@ const ShoppingListDetail: FunctionComponent = () => {
       );
     }
 
-    return <Grid>{uiColumns}</Grid>;
+    return uiColumns;
   };
 
   const renderItems = () => {
@@ -248,16 +254,45 @@ const ShoppingListDetail: FunctionComponent = () => {
     return uiItems;
   };
 
+  const renderHeader = () => {
+    return (
+      <Group
+        noWrap
+        position="apart"
+      >
+        <Title
+          size="h2"
+          className="text-ellipsis"
+        >
+          {shoppingList.title}
+        </Title>
+      </Group>
+    );
+  };
+
+  const FullSpanCol: FunctionComponent<PropsWithChildren> = ({
+    children,
+  }) => {
+    return (
+      <Grid.Col
+        p={0}
+        span="auto"
+      >
+        {children}
+      </Grid.Col>
+    );
+  };
+
   return (
     <Stack spacing="md">
-      {renderColumns()}
       <Grid>
-        <Grid.Col
-          p={0}
-          span="auto"
-        >
+        <FullSpanCol>{renderHeader()}</FullSpanCol>
+      </Grid>
+      <Grid>{renderColumns()}</Grid>
+      <Grid>
+        <FullSpanCol>
           <Divider />
-        </Grid.Col>
+        </FullSpanCol>
       </Grid>
       {renderItems()}
     </Stack>
