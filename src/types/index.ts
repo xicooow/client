@@ -75,6 +75,15 @@ export interface StickyTableProps {
   onSelect?: (item: Map<string, string>) => void;
 }
 
+export interface ToggleShoppingItemPayload {
+  shoppingListId: string;
+  shoppingItemId: string;
+}
+
+export interface AnyObject {
+  [key: string]: any;
+}
+
 /**
  * TYPES
  */
