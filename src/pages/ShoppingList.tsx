@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
+import { IconTrash } from "@tabler/icons";
 import { useParams } from "react-router-dom";
-import { IconPencil, IconTrash } from "@tabler/icons";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   FunctionComponent,
@@ -31,8 +31,6 @@ import {
 
 const useStyles = createStyles(theme => ({
   item: {
-    cursor: "pointer",
-
     "&:hover": {
       backgroundColor:
         theme.colorScheme === "dark"
@@ -192,19 +190,6 @@ const ShoppingListDetail: FunctionComponent = () => {
                   <Button
                     px={8}
                     size="xs"
-                    title="Editar"
-                    hidden={isChecked}
-                    onClick={(
-                      e: MouseEvent<HTMLButtonElement>
-                    ) => {
-                      e.stopPropagation();
-                    }}
-                  >
-                    <IconPencil size={18} />
-                  </Button>
-                  <Button
-                    px={8}
-                    size="xs"
                     color="red"
                     title="Deletar"
                     hidden={isChecked}
@@ -239,11 +224,11 @@ const ShoppingListDetail: FunctionComponent = () => {
           key={item.get("cre_date")}
           onClick={() =>
             toggleShoppingItemStatus({
-              shoppingListId: shoppingListId as string,
-              shoppingItemId: item.get("_id") as string,
+              shoppingListId: `${shoppingListId}`,
+              shoppingItemId: `${item.get("_id")}`,
             })
           }
-          className={`${classes.item} ${
+          className={`${classes.item} clickable ${
             isChecked ? "strike" : ""
           }`}
         >

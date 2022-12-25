@@ -53,6 +53,9 @@ ReactDOM.createRoot(
               whiteSpace: "nowrap",
               overflow: "hidden",
             },
+            ".clickable": {
+              cursor: "pointer",
+            },
           }),
         }}
         withGlobalStyles
