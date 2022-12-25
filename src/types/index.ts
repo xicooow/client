@@ -80,8 +80,8 @@ export interface ShoppingItemPayload {
   shoppingItemId: string;
 }
 
-export interface AnyObject {
-  [key: string]: any;
+export interface AnyObject<V = any> {
+  [key: string]: V;
 }
 
 /**

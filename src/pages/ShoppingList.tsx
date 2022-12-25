@@ -1,17 +1,31 @@
 import dayjs from "dayjs";
-import { IconTrash } from "@tabler/icons";
 import { useParams } from "react-router-dom";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { FunctionComponent, MouseEvent, useMemo } from "react";
+import { IconPlus, IconTrash } from "@tabler/icons";
+import {
+  QueryObserverResult,
+  useMutation,
+  useQuery,
+} from "@tanstack/react-query";
+import {
+  ChangeEvent,
+  FormEvent,
+  FunctionComponent,
+  MouseEvent,
+  useMemo,
+  useReducer,
+  useId,
+} from "react";
 import {
   Button,
   Center,
   Grid,
-  Stack,
   Group,
   Divider,
   createStyles,
   Title,
+  TextInput,
+  Space,
+  Tabs,
 } from "@mantine/core";
 
 import api from "../api";
@@ -22,9 +36,20 @@ import {
   ShoppingItem,
   ShoppingItemPayload,
   StringMap,
+  AnyObject,
 } from "../types";
 
 const useStyles = createStyles(theme => ({
+  "tab-list": {
+    border: "none",
+  },
+  "tab-option": {
+    borderRadius: "unset",
+
+    "&:not([data-active]):hover": {
+      border: "none",
+    },
+  },
   item: {
     "&:hover": {
       backgroundColor:
@@ -49,7 +74,106 @@ const useStyles = createStyles(theme => ({
   },
 }));
 
+const ShoppingItemAddForm: FunctionComponent<
+  Pick<ShoppingList, "columns"> &
+    Pick<ShoppingItemPayload, "shoppingListId"> & {
+      refetch: () => Promise<
+        QueryObserverResult<ShoppingList, Error>
+      >;
+    }
+> = ({ columns, shoppingListId, refetch }) => {
+  const { cols, initialState } = useMemo(() => {
+    const cols = Array.from(columns.entries());
+    const initialState = cols.reduce<AnyObject<string>>(
+      (previous, current) => {
+        const [name] = current;
+        previous[name] = "";
+        return previous;
+      },
+      {}
+    );
+
+    return {
+      cols,
+      initialState,
+    };
+  }, [columns]);
+
+  const reducer = (
+    state: typeof initialState,
+    action: { name: string; value: string }
+  ) => {
+    const { name, value } = action;
+    return {
+      ...state,
+      [name]: value,
+    };
+  };
+
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const addItem = async (values: typeof state) => {
+    const request = api<ShoppingItem>(
+      `shoppingList/${shoppingListId}/item`,
+      {
+        method: "POST",
+        body: JSON.stringify({ values }),
+      }
+    );
+
+    return await request();
+  };
+
+  const { mutate: addShoppingItem } = useMutation<
+    ShoppingItem,
+    Error,
+    typeof state
+  >({
+    onSuccess: () => {
+      refetch();
+    },
+    mutationFn: addItem,
+  });
+
+  return (
+    <form
+      onSubmit={(e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        addShoppingItem(state);
+      }}
+    >
+      <Group
+        grow
+        spacing="xl"
+      >
+        {cols.map(([name, value]) => (
+          <TextInput
+            key={name}
+            label={value}
+            value={state[name]}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              const { value } = e.target;
+              dispatch({ name, value });
+            }}
+          />
+        ))}
+      </Group>
+      <Space h="xl" />
+      <Group position="right">
+        <Button
+          type="submit"
+          variant="gradient"
+          leftIcon={<IconPlus size={18} />}
+        >
+          Adicionar
+        </Button>
+      </Group>
+    </form>
+  );
+};
+
 const ShoppingListDetail: FunctionComponent = () => {
+  const keyId = useId();
   const { classes } = useStyles();
   const { shoppingListId } = useParams();
 
@@ -185,11 +309,7 @@ const ShoppingListDetail: FunctionComponent = () => {
     if (items.length === 0) {
       return [
         <Grid key="empty">
-          <Grid.Col
-            p={0}
-            py={8}
-            span="auto"
-          >
+          <Grid.Col span="auto">
             <Center fs="italic">Sem resultados</Center>
           </Grid.Col>
         </Grid>,
@@ -209,10 +329,8 @@ const ShoppingListDetail: FunctionComponent = () => {
           case "actions":
             itemRow.push(
               <Grid.Col
-                p={0}
-                py={8}
                 span="auto"
-                key={item.get("_id")}
+                key={keyId}
               >
                 <Group
                   noWrap
@@ -240,8 +358,6 @@ const ShoppingListDetail: FunctionComponent = () => {
           default:
             itemRow.push(
               <Grid.Col
-                p={0}
-                py={8}
                 key={key}
                 span="auto"
               >
@@ -254,8 +370,9 @@ const ShoppingListDetail: FunctionComponent = () => {
 
       uiItems.push(
         <Grid
+          mb="sm"
           pos="relative"
-          key={item.get("cre_date")}
+          key={item.get("_id")}
           onClick={() => toggleShoppingItemStatus(payloadData)}
           className={`${classes.item} clickable ${
             isChecked ? "strike" : ""
@@ -286,24 +403,47 @@ const ShoppingListDetail: FunctionComponent = () => {
   };
 
   return (
-    <Stack spacing="md">
-      <Grid>
-        <Grid.Col span="auto">{renderHeader()}</Grid.Col>
-      </Grid>
-      <Grid>{renderColumns()}</Grid>
-      <Grid>
-        <Grid.Col span="auto">
-          <Divider />
-        </Grid.Col>
-      </Grid>
-      <Stack
-        px={8}
-        h="calc(100vh / 2)"
-        className="v-scroll"
+    <Tabs defaultValue="list">
+      <Tabs.List
+        mb="lg"
+        className={classes["tab-list"]}
       >
+        <Tabs.Tab
+          value="list"
+          className={classes["tab-option"]}
+        >
+          Itens
+        </Tabs.Tab>
+        <Tabs.Tab
+          value="form"
+          className={classes["tab-option"]}
+        >
+          Criar Novo
+        </Tabs.Tab>
+      </Tabs.List>
+      <Tabs.Panel value="list">
+        <Grid>
+          <Grid.Col span="auto">{renderHeader()}</Grid.Col>
+        </Grid>
+        <Grid>{renderColumns()}</Grid>
+        <Grid my="lg">
+          <Grid.Col
+            p={0}
+            span="auto"
+          >
+            <Divider />
+          </Grid.Col>
+        </Grid>
         {renderItems()}
-      </Stack>
-    </Stack>
+      </Tabs.Panel>
+      <Tabs.Panel value="form">
+        <ShoppingItemAddForm
+          refetch={refetch}
+          columns={shoppingList.columns}
+          shoppingListId={`${shoppingListId}`}
+        />
+      </Tabs.Panel>
+    </Tabs>
   );
 };
 
