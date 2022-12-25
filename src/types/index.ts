@@ -57,25 +57,25 @@ export interface ShoppingList extends WithId {
   cre_date: string;
   items: ShoppingItem[];
   user: string;
-  columns: Map<string, string>;
+  columns: StringMap;
   status: "active" | "inactive" | "archived";
 }
 
 export interface ShoppingItem extends WithId {
   done: boolean;
-  fields: ShoppingList["columns"];
+  fields: StringMap;
   cre_date: string;
 }
 
 export interface StickyTableProps {
-  columns: Map<string, string>;
-  items: Map<string, string>[];
+  columns: StringMap;
+  items: StringMap[];
   loading: boolean;
   captionText?: string;
-  onSelect?: (item: Map<string, string>) => void;
+  onSelect?: (item: StringMap) => void;
 }
 
-export interface ToggleShoppingItemPayload {
+export interface ShoppingItemPayload {
   shoppingListId: string;
   shoppingItemId: string;
 }
@@ -87,6 +87,8 @@ export interface AnyObject {
 /**
  * TYPES
  */
+
+export type StringMap = Map<string, string>;
 
 export type Action =
   | {

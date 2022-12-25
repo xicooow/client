@@ -25,7 +25,8 @@ import SplashScreen from "../components/SplashScreen";
 import {
   ShoppingList,
   ShoppingItem,
-  ToggleShoppingItemPayload,
+  ShoppingItemPayload,
+  StringMap,
 } from "../types";
 
 const useStyles = createStyles(theme => ({
@@ -73,7 +74,7 @@ const ShoppingListDetail: FunctionComponent = () => {
   const toggleItem = async ({
     shoppingListId,
     shoppingItemId,
-  }: ToggleShoppingItemPayload) => {
+  }: ShoppingItemPayload) => {
     const request = api<ShoppingItem>(
       `shoppingList/${shoppingListId}/item/${shoppingItemId}`,
       {
@@ -86,7 +87,7 @@ const ShoppingListDetail: FunctionComponent = () => {
   };
 
   const { isLoading, mutate: toggleShoppingItemStatus } =
-    useMutation<ShoppingItem, Error, ToggleShoppingItemPayload>({
+    useMutation<ShoppingItem, Error, ShoppingItemPayload>({
       onSuccess: () => {
         refetch();
       },
@@ -126,7 +127,7 @@ const ShoppingListDetail: FunctionComponent = () => {
   };
 
   const buildItem = (item: ShoppingItem) => {
-    const mapped = new Map<string, string>();
+    const mapped: StringMap = new Map();
     mapped.set("_id", item._id);
     mapped.set("done", String(item.done));
     mapped.set("cre_date", dayjs(item.cre_date).format("L LT"));

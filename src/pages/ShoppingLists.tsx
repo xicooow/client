@@ -41,6 +41,7 @@ import {
   ReducedShoppingLists,
   ShoppingList,
   ShoppingListPayload,
+  StringMap,
 } from "../types";
 
 const ShoppingListForm: FunctionComponent<{
@@ -155,25 +156,22 @@ const ShoppingLists: FunctionComponent = () => {
 
   const items = useMemo(
     () =>
-      shoppingLists.reduce<Map<string, string>[]>(
-        (previous, current) => {
-          if (
-            current.title
-              .toLowerCase()
-              .includes(filter.toLowerCase())
-          ) {
-            const formatted: typeof current = {
-              ...current,
-              cre_date: dayjs(current.cre_date).format("lll"),
-            };
+      shoppingLists.reduce<StringMap[]>((previous, current) => {
+        if (
+          current.title
+            .toLowerCase()
+            .includes(filter.toLowerCase())
+        ) {
+          const formatted: typeof current = {
+            ...current,
+            cre_date: dayjs(current.cre_date).format("lll"),
+          };
 
-            previous.push(new Map(Object.entries(formatted)));
-          }
+          previous.push(new Map(Object.entries(formatted)));
+        }
 
-          return previous;
-        },
-        []
-      ),
+        return previous;
+      }, []),
     [shoppingLists, filter]
   );
 
