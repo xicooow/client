@@ -56,6 +56,10 @@ ReactDOM.createRoot(
             ".clickable": {
               cursor: "pointer",
             },
+            ".v-scroll": {
+              overflowY: "auto",
+              overflowX: "hidden",
+            },
           }),
         }}
         withGlobalStyles

@@ -2,12 +2,7 @@ import dayjs from "dayjs";
 import { IconTrash } from "@tabler/icons";
 import { useParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import {
-  FunctionComponent,
-  MouseEvent,
-  PropsWithChildren,
-  useMemo,
-} from "react";
+import { FunctionComponent, MouseEvent, useMemo } from "react";
 import {
   Button,
   Center,
@@ -190,7 +185,11 @@ const ShoppingListDetail: FunctionComponent = () => {
     if (items.length === 0) {
       return [
         <Grid key="empty">
-          <Grid.Col span="auto">
+          <Grid.Col
+            p={0}
+            py={8}
+            span="auto"
+          >
             <Center fs="italic">Sem resultados</Center>
           </Grid.Col>
         </Grid>,
@@ -210,6 +209,8 @@ const ShoppingListDetail: FunctionComponent = () => {
           case "actions":
             itemRow.push(
               <Grid.Col
+                p={0}
+                py={8}
                 span="auto"
                 key={item.get("_id")}
               >
@@ -239,6 +240,8 @@ const ShoppingListDetail: FunctionComponent = () => {
           default:
             itemRow.push(
               <Grid.Col
+                p={0}
+                py={8}
                 key={key}
                 span="auto"
               >
@@ -282,31 +285,24 @@ const ShoppingListDetail: FunctionComponent = () => {
     );
   };
 
-  const FullSpanCol: FunctionComponent<PropsWithChildren> = ({
-    children,
-  }) => {
-    return (
-      <Grid.Col
-        p={0}
-        span="auto"
-      >
-        {children}
-      </Grid.Col>
-    );
-  };
-
   return (
     <Stack spacing="md">
       <Grid>
-        <FullSpanCol>{renderHeader()}</FullSpanCol>
+        <Grid.Col span="auto">{renderHeader()}</Grid.Col>
       </Grid>
       <Grid>{renderColumns()}</Grid>
       <Grid>
-        <FullSpanCol>
+        <Grid.Col span="auto">
           <Divider />
-        </FullSpanCol>
+        </Grid.Col>
       </Grid>
-      {renderItems()}
+      <Stack
+        px={8}
+        h="calc(100vh / 2)"
+        className="v-scroll"
+      >
+        {renderItems()}
+      </Stack>
     </Stack>
   );
 };
