@@ -40,9 +40,6 @@ const useStyles = createStyles(theme => ({
   borderless: {
     border: "none !important",
   },
-  clickable: {
-    cursor: "pointer",
-  },
   scrolled: {
     boxShadow: theme.shadows.sm,
   },
@@ -71,7 +68,7 @@ const StickyTable: FunctionComponent<StickyTableProps> = ({
       row.push(
         <td
           key={colName}
-          className={classes.clickable}
+          className="clickable"
           onClick={() => onSelect && onSelect(item)}
         >
           {item.get(colName)}

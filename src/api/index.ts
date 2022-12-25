@@ -13,7 +13,7 @@ const getResponseError = async (text: Promise<string>) => {
   }
 };
 
-export default <R = any>(
+export default <R = void>(
   endpoint: string,
   options?: RequestInit,
   signal?: AbortSignal

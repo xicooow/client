@@ -29,7 +29,6 @@ const useStyles = createStyles(theme => ({
       theme.colorScheme === "dark"
         ? theme.colors.dark[1]
         : theme.colors.gray[6],
-    cursor: "pointer",
 
     "&:hover": {
       textDecoration: "underline",
@@ -74,7 +73,7 @@ const AccountComponent: FunctionComponent = () => {
           >
             <Text
               size="lg"
-              className={classes.link}
+              className={`${classes.link} clickable`}
               onClick={e => {
                 e.preventDefault();
                 copy(user._id);

@@ -28,7 +28,6 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       ...common,
-      refetchOnMount: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
     },
@@ -53,6 +52,9 @@ ReactDOM.createRoot(
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
               overflow: "hidden",
+            },
+            ".clickable": {
+              cursor: "pointer",
             },
           }),
         }}
