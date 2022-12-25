@@ -46,7 +46,7 @@ const useStyles = createStyles(theme => ({
         content: "' '",
         position: "absolute",
         borderBottom: `2px solid ${theme.colors.dark[4]}`,
-        width: " 100%",
+        width: "100%",
         top: "50%",
         left: "0",
       },
@@ -211,7 +211,7 @@ const ShoppingListDetail: FunctionComponent = () => {
                 key={key}
                 span="auto"
               >
-                {item.get(key)}
+                {item.get(key) || ""}
               </Grid.Col>
             );
             break;
