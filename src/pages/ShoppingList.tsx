@@ -84,13 +84,39 @@ const ShoppingListDetail: FunctionComponent = () => {
     return await request();
   };
 
-  const { isLoading, mutate: toggleShoppingItemStatus } =
-    useMutation<ShoppingItem, Error, ShoppingItemPayload>({
-      onSuccess: () => {
-        refetch();
-      },
-      mutationFn: toggleItem,
-    });
+  const { mutate: toggleShoppingItemStatus } = useMutation<
+    ShoppingItem,
+    Error,
+    ShoppingItemPayload
+  >({
+    onSuccess: () => {
+      refetch();
+    },
+    mutationFn: toggleItem,
+  });
+
+  const deleteItem = async ({
+    shoppingListId,
+    shoppingItemId,
+  }: ShoppingItemPayload) => {
+    const request = api(
+      `shoppingList/${shoppingListId}/item/${shoppingItemId}`,
+      { method: "DELETE" }
+    );
+
+    return await request();
+  };
+
+  const { mutate: deleteShoppingItem } = useMutation<
+    void,
+    Error,
+    ShoppingItemPayload
+  >({
+    onSuccess: () => {
+      refetch();
+    },
+    mutationFn: deleteItem,
+  });
 
   const shoppingList = useMemo<typeof data>(() => {
     if (data) {
@@ -105,7 +131,7 @@ const ShoppingListDetail: FunctionComponent = () => {
     }
   }, [data]);
 
-  if (isFetching || isLoading || !shoppingList) {
+  if (isFetching || !shoppingList) {
     return <SplashScreen />;
   }
 
@@ -174,6 +200,10 @@ const ShoppingListDetail: FunctionComponent = () => {
     for (const item of items) {
       const itemRow: JSX.Element[] = [];
       const isChecked = item.get("done") === "true";
+      const payloadData: ShoppingItemPayload = {
+        shoppingListId: `${shoppingListId}`,
+        shoppingItemId: `${item.get("_id")}`,
+      };
 
       for (const key of columns.keys()) {
         switch (key) {
@@ -197,6 +227,7 @@ const ShoppingListDetail: FunctionComponent = () => {
                       e: MouseEvent<HTMLButtonElement>
                     ) => {
                       e.stopPropagation();
+                      deleteShoppingItem(payloadData);
                     }}
                   >
                     <IconTrash size={18} />
@@ -222,12 +253,7 @@ const ShoppingListDetail: FunctionComponent = () => {
         <Grid
           pos="relative"
           key={item.get("cre_date")}
-          onClick={() =>
-            toggleShoppingItemStatus({
-              shoppingListId: `${shoppingListId}`,
-              shoppingItemId: `${item.get("_id")}`,
-            })
-          }
+          onClick={() => toggleShoppingItemStatus(payloadData)}
           className={`${classes.item} clickable ${
             isChecked ? "strike" : ""
           }`}
