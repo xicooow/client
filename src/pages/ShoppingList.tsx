@@ -29,6 +29,7 @@ import {
   ScrollArea,
   NumberInput,
   Mark,
+  Accordion,
 } from "@mantine/core";
 
 import api from "../api";
@@ -447,7 +448,6 @@ const ShoppingListDetail: FunctionComponent = () => {
     return (
       <Group
         grow
-        noWrap
         position="center"
       >
         <Text align="center">
@@ -455,7 +455,7 @@ const ShoppingListDetail: FunctionComponent = () => {
         </Text>
         <Text align="center">
           Total:{" "}
-          <Mark color={`${total > 100 ? "red" : "green"}`}>
+          <Mark color={`${total <= 100 ? "green" : "red"}`}>
             {currencyFormat(total)}
           </Mark>
         </Text>
@@ -489,6 +489,12 @@ const ShoppingListDetail: FunctionComponent = () => {
           >
             Criar Novo
           </Tabs.Tab>
+          <Tabs.Tab
+            value="config"
+            className={classes["tab-option"]}
+          >
+            Configurações
+          </Tabs.Tab>
         </Tabs.List>
         <Tabs.Panel value="list">
           <GridLayout colsSize={columns.size}>
@@ -509,6 +515,20 @@ const ShoppingListDetail: FunctionComponent = () => {
             columns={shoppingList.columns}
             shoppingListId={`${shoppingListId}`}
           />
+        </Tabs.Panel>
+        <Tabs.Panel value="config">
+          <Accordion
+            radius="md"
+            variant="filled"
+            defaultValue="customization"
+          >
+            <Accordion.Item value="customization">
+              <Accordion.Control>Costumização</Accordion.Control>
+              <Accordion.Panel>
+                <Text>TBD...</Text>
+              </Accordion.Panel>
+            </Accordion.Item>
+          </Accordion>
         </Tabs.Panel>
       </Tabs>
     </>
