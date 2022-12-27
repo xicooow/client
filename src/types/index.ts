@@ -1,3 +1,6 @@
+import { Property } from "csstype";
+import { HTMLAttributes } from "react";
+
 /**
  * INTERFACES
  */
@@ -82,6 +85,18 @@ export interface ShoppingItemPayload {
 
 export interface AnyObject<V = any> {
   [key: string]: V;
+}
+
+export interface GridLayoutStyles {
+  flexFlow: Property.FlexFlow;
+  alignItems: Property.AlignItems;
+  justifyContent: Property.JustifyContent;
+}
+
+export interface GridLayoutProps
+  extends Pick<HTMLAttributes<HTMLDivElement>, "className"> {
+  colsSize: number;
+  styles?: Partial<GridLayoutStyles>;
 }
 
 /**

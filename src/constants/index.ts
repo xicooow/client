@@ -27,3 +27,8 @@ export const QUERY_KEYS = {
 };
 export const AUTH_TOKEN_KEY = "auth_token";
 export const API_URL = import.meta.env.VITE_API_URL;
+export const currencyFormat = Intl.NumberFormat("pt-BR", {
+  currency: "BRL",
+  style: "currency",
+  minimumFractionDigits: 2,
+}).format;

@@ -14,8 +14,6 @@ import {
   useMemo,
   useReducer,
   useId,
-  PropsWithChildren,
-  HTMLAttributes,
 } from "react";
 import {
   Button,
@@ -28,11 +26,15 @@ import {
   TextInput,
   Space,
   Tabs,
+  ScrollArea,
+  NumberInput,
+  Mark,
 } from "@mantine/core";
 
 import api from "../api";
-import { QUERY_KEYS } from "../constants";
+import GridLayout from "../components/GridLayout";
 import SplashScreen from "../components/SplashScreen";
+import { QUERY_KEYS, currencyFormat } from "../constants";
 import {
   ShoppingList,
   ShoppingItem,
@@ -50,18 +52,6 @@ const useStyles = createStyles(theme => ({
 
     "&:not([data-active]):hover": {
       border: "none",
-    },
-  },
-  grid: {
-    display: "grid",
-    position: "relative",
-
-    "&>div": {
-      padding: 8,
-      alignItems: "center",
-      display: "inline-flex",
-      justifyContent: "center",
-      flexFlow: "column nowrap",
     },
   },
   item: {
@@ -87,23 +77,6 @@ const useStyles = createStyles(theme => ({
     },
   },
 }));
-
-const GridShell: FunctionComponent<
-  PropsWithChildren &
-    Pick<ShoppingList, "columns"> &
-    Required<Pick<HTMLAttributes<HTMLDivElement>, "className">>
-> = ({ columns, className, children }) => {
-  return (
-    <section
-      className={className}
-      style={{
-        gridTemplateColumns: `repeat(${columns.size}, 1fr)`,
-      }}
-    >
-      {children}
-    </section>
-  );
-};
 
 const ShoppingItemAddForm: FunctionComponent<
   Pick<ShoppingList, "columns"> &
@@ -177,18 +150,38 @@ const ShoppingItemAddForm: FunctionComponent<
         grow
         spacing="xl"
       >
-        {cols.map(([name, value]) => (
-          <TextInput
-            required
-            key={name}
-            label={value}
-            value={state[name]}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => {
-              const { value } = e.target;
-              dispatch({ name, value });
-            }}
-          />
-        ))}
+        {cols.map(([name, value]) => {
+          if (name === "price") {
+            return (
+              <NumberInput
+                min={0}
+                required
+                key={name}
+                step={0.05}
+                label={value}
+                precision={2}
+                decimalSeparator=","
+                value={Number(state[name])}
+                onChange={(value?: number) => {
+                  dispatch({ name, value: `${value}` });
+                }}
+              />
+            );
+          }
+
+          return (
+            <TextInput
+              required
+              key={name}
+              label={value}
+              value={state[name]}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                const { value } = e.target;
+                dispatch({ name, value });
+              }}
+            />
+          );
+        })}
       </Group>
       <Space h="xl" />
       <Group position="right">
@@ -282,6 +275,27 @@ const ShoppingListDetail: FunctionComponent = () => {
     }
   }, [data]);
 
+  const { sum, total } = useMemo(() => {
+    let sum = 0,
+      total = 0;
+
+    if (shoppingList) {
+      sum = shoppingList.items.length;
+      total = shoppingList.items.reduce(
+        (previous, { fields }) => {
+          const price = fields.get("price");
+          if (price) {
+            previous = previous + Number(price);
+          }
+          return previous;
+        },
+        0
+      );
+    }
+
+    return { sum, total };
+  }, [shoppingList?.items.length]);
+
   if (isFetching || !shoppingList) {
     return <SplashScreen />;
   }
@@ -335,6 +349,19 @@ const ShoppingListDetail: FunctionComponent = () => {
     return uiColumns;
   };
 
+  const renderItemText = (key: string, value?: string) => {
+    if (!value) {
+      return "";
+    }
+
+    switch (key) {
+      case "price":
+        return currencyFormat(Number(value));
+      default:
+        return value;
+    }
+  };
+
   const renderItems = () => {
     if (items.length === 0) {
       return [
@@ -363,10 +390,7 @@ const ShoppingListDetail: FunctionComponent = () => {
         switch (key) {
           case "actions":
             itemRow.push(
-              <Group
-                noWrap
-                key={keyId}
-              >
+              <Center key={keyId}>
                 <Button
                   px={8}
                   size="xs"
@@ -382,7 +406,7 @@ const ShoppingListDetail: FunctionComponent = () => {
                 >
                   <IconTrash size={18} />
                 </Button>
-              </Group>
+              </Center>
             );
             break;
           default:
@@ -393,72 +417,101 @@ const ShoppingListDetail: FunctionComponent = () => {
                   toggleShoppingItemStatus(payloadData)
                 }
               >
-                {item.get(key) || ""}
+                {renderItemText(key, item.get(key))}
               </Text>
             );
             break;
         }
       }
 
+      let itemRowClasses = `clickable ${classes.item}`;
+      if (isChecked) {
+        itemRowClasses += " strike";
+      }
+
       uiItems.push(
-        <GridShell
-          columns={columns}
+        <GridLayout
           key={item.get("_id")}
-          className={`${classes.grid} ${
-            classes.item
-          } clickable ${isChecked ? "strike" : ""}`}
+          colsSize={columns.size}
+          className={itemRowClasses}
         >
           {itemRow}
-        </GridShell>
+        </GridLayout>
       );
     }
 
     return uiItems;
   };
 
-  return (
-    <Tabs defaultValue="list">
-      <Tabs.List
-        mb="lg"
-        className={classes["tab-list"]}
+  const renderSummary = () => {
+    return (
+      <Group
+        grow
+        noWrap
+        position="center"
       >
-        <Tabs.Tab
-          value="list"
-          className={classes["tab-option"]}
+        <Text align="center">
+          Qtd: <strong>{sum}</strong>
+        </Text>
+        <Text align="center">
+          Total:{" "}
+          <Mark color={`${total > 100 ? "red" : "green"}`}>
+            {currencyFormat(total)}
+          </Mark>
+        </Text>
+      </Group>
+    );
+  };
+
+  return (
+    <>
+      <Title
+        mb="lg"
+        size="h2"
+        className="text-ellipsis"
+      >
+        {shoppingList.title}
+      </Title>
+      <Tabs defaultValue="list">
+        <Tabs.List
+          mb="lg"
+          className={classes["tab-list"]}
         >
-          Itens
-        </Tabs.Tab>
-        <Tabs.Tab
-          value="form"
-          className={classes["tab-option"]}
-        >
-          Criar Novo
-        </Tabs.Tab>
-      </Tabs.List>
-      <Tabs.Panel value="list">
-        <Title
-          size="h2"
-          className="text-ellipsis"
-        >
-          {shoppingList.title}
-        </Title>
-        <GridShell
-          columns={columns}
-          className={classes.grid}
-        >
-          {renderColumns()}
-        </GridShell>
-        <Divider />
-        {renderItems()}
-      </Tabs.Panel>
-      <Tabs.Panel value="form">
-        <ShoppingItemAddForm
-          refetch={refetch}
-          columns={shoppingList.columns}
-          shoppingListId={`${shoppingListId}`}
-        />
-      </Tabs.Panel>
-    </Tabs>
+          <Tabs.Tab
+            value="list"
+            className={classes["tab-option"]}
+          >
+            Itens
+          </Tabs.Tab>
+          <Tabs.Tab
+            value="form"
+            className={classes["tab-option"]}
+          >
+            Criar Novo
+          </Tabs.Tab>
+        </Tabs.List>
+        <Tabs.Panel value="list">
+          <GridLayout colsSize={columns.size}>
+            {renderColumns()}
+          </GridLayout>
+          <Divider />
+          <ScrollArea
+            scrollHideDelay={750}
+            h="calc(100vh / 1.75)"
+          >
+            {renderItems()}
+          </ScrollArea>
+          {renderSummary()}
+        </Tabs.Panel>
+        <Tabs.Panel value="form">
+          <ShoppingItemAddForm
+            refetch={refetch}
+            columns={shoppingList.columns}
+            shoppingListId={`${shoppingListId}`}
+          />
+        </Tabs.Panel>
+      </Tabs>
+    </>
   );
 };
 
