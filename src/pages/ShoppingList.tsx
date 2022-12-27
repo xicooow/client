@@ -14,11 +14,13 @@ import {
   useMemo,
   useReducer,
   useId,
+  PropsWithChildren,
+  HTMLAttributes,
 } from "react";
 import {
   Button,
   Center,
-  Grid,
+  Text,
   Group,
   Divider,
   createStyles,
@@ -50,6 +52,18 @@ const useStyles = createStyles(theme => ({
       border: "none",
     },
   },
+  grid: {
+    display: "grid",
+    position: "relative",
+
+    "&>div": {
+      padding: 8,
+      alignItems: "center",
+      display: "inline-flex",
+      justifyContent: "center",
+      flexFlow: "column nowrap",
+    },
+  },
   item: {
     "&:hover": {
       backgroundColor:
@@ -73,6 +87,23 @@ const useStyles = createStyles(theme => ({
     },
   },
 }));
+
+const GridShell: FunctionComponent<
+  PropsWithChildren &
+    Pick<ShoppingList, "columns"> &
+    Required<Pick<HTMLAttributes<HTMLDivElement>, "className">>
+> = ({ columns, className, children }) => {
+  return (
+    <section
+      className={className}
+      style={{
+        gridTemplateColumns: `repeat(${columns.size}, 1fr)`,
+      }}
+    >
+      {children}
+    </section>
+  );
+};
 
 const ShoppingItemAddForm: FunctionComponent<
   Pick<ShoppingList, "columns"> &
@@ -148,6 +179,7 @@ const ShoppingItemAddForm: FunctionComponent<
       >
         {cols.map(([name, value]) => (
           <TextInput
+            required
             key={name}
             label={value}
             value={state[name]}
@@ -290,13 +322,13 @@ const ShoppingListDetail: FunctionComponent = () => {
 
     for (const value of columns.values()) {
       uiColumns.push(
-        <Grid.Col
+        <Text
+          p={8}
           fw={600}
-          span="auto"
           key={value}
         >
           {value}
-        </Grid.Col>
+        </Text>
       );
     }
 
@@ -304,102 +336,84 @@ const ShoppingListDetail: FunctionComponent = () => {
   };
 
   const renderItems = () => {
-    const uiItems: JSX.Element[] = [];
-
     if (items.length === 0) {
       return [
-        <Grid key="empty">
-          <Grid.Col span="auto">
-            <Center fs="italic">Sem resultados</Center>
-          </Grid.Col>
-        </Grid>,
+        <Center
+          mt="lg"
+          key="empty"
+          fs="italic"
+        >
+          Sem resultados
+        </Center>,
       ];
     }
 
+    const uiItems: JSX.Element[] = [];
+
     for (const item of items) {
-      const itemRow: JSX.Element[] = [];
-      const isChecked = item.get("done") === "true";
       const payloadData: ShoppingItemPayload = {
         shoppingListId: `${shoppingListId}`,
         shoppingItemId: `${item.get("_id")}`,
       };
 
+      const itemRow: JSX.Element[] = [];
+      const isChecked = item.get("done") === "true";
+
       for (const key of columns.keys()) {
         switch (key) {
           case "actions":
             itemRow.push(
-              <Grid.Col
-                span="auto"
+              <Group
+                noWrap
                 key={keyId}
               >
-                <Group
-                  noWrap
-                  position="left"
+                <Button
+                  px={8}
+                  size="xs"
+                  color="red"
+                  title="Deletar"
+                  hidden={isChecked}
+                  onClick={(
+                    e: MouseEvent<HTMLButtonElement>
+                  ) => {
+                    e.stopPropagation();
+                    deleteShoppingItem(payloadData);
+                  }}
                 >
-                  <Button
-                    px={8}
-                    size="xs"
-                    color="red"
-                    title="Deletar"
-                    hidden={isChecked}
-                    onClick={(
-                      e: MouseEvent<HTMLButtonElement>
-                    ) => {
-                      e.stopPropagation();
-                      deleteShoppingItem(payloadData);
-                    }}
-                  >
-                    <IconTrash size={18} />
-                  </Button>
-                </Group>
-              </Grid.Col>
+                  <IconTrash size={18} />
+                </Button>
+              </Group>
             );
             break;
           default:
             itemRow.push(
-              <Grid.Col
+              <Text
                 key={key}
-                span="auto"
+                onClick={() =>
+                  toggleShoppingItemStatus(payloadData)
+                }
               >
                 {item.get(key) || ""}
-              </Grid.Col>
+              </Text>
             );
             break;
         }
       }
 
       uiItems.push(
-        <Grid
-          mb="sm"
-          pos="relative"
+        <GridShell
+          columns={columns}
           key={item.get("_id")}
-          onClick={() => toggleShoppingItemStatus(payloadData)}
-          className={`${classes.item} clickable ${
-            isChecked ? "strike" : ""
-          }`}
+          className={`${classes.grid} ${
+            classes.item
+          } clickable ${isChecked ? "strike" : ""}`}
         >
           {itemRow}
-        </Grid>
+        </GridShell>
       );
     }
 
     return uiItems;
-  };
-
-  const renderHeader = () => {
-    return (
-      <Group
-        noWrap
-        position="apart"
-      >
-        <Title
-          size="h2"
-          className="text-ellipsis"
-        >
-          {shoppingList.title}
-        </Title>
-      </Group>
-    );
   };
 
   return (
@@ -422,18 +436,19 @@ const ShoppingListDetail: FunctionComponent = () => {
         </Tabs.Tab>
       </Tabs.List>
       <Tabs.Panel value="list">
-        <Grid>
-          <Grid.Col span="auto">{renderHeader()}</Grid.Col>
-        </Grid>
-        <Grid>{renderColumns()}</Grid>
-        <Grid my="lg">
-          <Grid.Col
-            p={0}
-            span="auto"
-          >
-            <Divider />
-          </Grid.Col>
-        </Grid>
+        <Title
+          size="h2"
+          className="text-ellipsis"
+        >
+          {shoppingList.title}
+        </Title>
+        <GridShell
+          columns={columns}
+          className={classes.grid}
+        >
+          {renderColumns()}
+        </GridShell>
+        <Divider />
         {renderItems()}
       </Tabs.Panel>
       <Tabs.Panel value="form">
