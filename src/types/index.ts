@@ -83,10 +83,6 @@ export interface ShoppingItemPayload {
   shoppingItemId: string;
 }
 
-export interface AnyObject<V = any> {
-  [key: string]: V;
-}
-
 export interface GridLayoutStyles {
   flexFlow: Property.FlexFlow;
   alignItems: Property.AlignItems;
@@ -104,6 +100,8 @@ export interface GridLayoutProps
  */
 
 export type StringMap = Map<string, string>;
+
+export type AnyObject<V = any> = Record<string, V>;
 
 export type Action =
   | {

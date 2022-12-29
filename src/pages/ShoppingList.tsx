@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
+import { IconTrash } from "@tabler/icons";
 import { useParams } from "react-router-dom";
-import { IconPlus, IconTrash } from "@tabler/icons";
 import {
   QueryObserverResult,
   useMutation,
@@ -13,7 +13,6 @@ import {
   MouseEvent,
   useMemo,
   useReducer,
-  useId,
 } from "react";
 import {
   Button,
@@ -36,6 +35,7 @@ import api from "../api";
 import GridLayout from "../components/GridLayout";
 import SplashScreen from "../components/SplashScreen";
 import { QUERY_KEYS, currencyFormat } from "../constants";
+import CustomIconLoader from "../components/CustomIconLoader";
 import {
   ShoppingList,
   ShoppingItem,
@@ -129,16 +129,13 @@ const ShoppingItemAddForm: FunctionComponent<
     return await request();
   };
 
-  const { mutate: addShoppingItem } = useMutation<
-    ShoppingItem,
-    Error,
-    typeof state
-  >({
-    onSuccess: () => {
-      refetch();
-    },
-    mutationFn: addItem,
-  });
+  const { isLoading: isSaving, mutate: addShoppingItem } =
+    useMutation<ShoppingItem, Error, typeof state>({
+      onSuccess: () => {
+        refetch();
+      },
+      mutationFn: addItem,
+    });
 
   return (
     <form
@@ -162,6 +159,7 @@ const ShoppingItemAddForm: FunctionComponent<
                 label={value}
                 precision={2}
                 decimalSeparator=","
+                disabled={isSaving}
                 value={Number(state[name])}
                 onChange={(value?: number) => {
                   dispatch({ name, value: `${value}` });
@@ -176,6 +174,7 @@ const ShoppingItemAddForm: FunctionComponent<
               key={name}
               label={value}
               value={state[name]}
+              disabled={isSaving}
               onChange={(e: ChangeEvent<HTMLInputElement>) => {
                 const { value } = e.target;
                 dispatch({ name, value });
@@ -189,9 +188,9 @@ const ShoppingItemAddForm: FunctionComponent<
         <Button
           type="submit"
           variant="gradient"
-          leftIcon={<IconPlus size={18} />}
+          disabled={isSaving}
         >
-          Adicionar
+          {isSaving ? <CustomIconLoader /> : "Adicionar"}
         </Button>
       </Group>
     </form>
@@ -199,11 +198,10 @@ const ShoppingItemAddForm: FunctionComponent<
 };
 
 const ShoppingListDetail: FunctionComponent = () => {
-  const keyId = useId();
   const { classes } = useStyles();
   const { shoppingListId } = useParams();
 
-  const { data, isFetching, refetch } = useQuery<
+  const { data, isLoading, isFetching, refetch } = useQuery<
     ShoppingList,
     Error
   >(QUERY_KEYS.SHOPPING_LIST, async () => {
@@ -229,11 +227,10 @@ const ShoppingListDetail: FunctionComponent = () => {
     return await request();
   };
 
-  const { mutate: toggleShoppingItemStatus } = useMutation<
-    ShoppingItem,
-    Error,
-    ShoppingItemPayload
-  >({
+  const {
+    isLoading: isEditing,
+    mutate: toggleShoppingItemStatus,
+  } = useMutation<ShoppingItem, Error, ShoppingItemPayload>({
     onSuccess: () => {
       refetch();
     },
@@ -252,16 +249,13 @@ const ShoppingListDetail: FunctionComponent = () => {
     return await request();
   };
 
-  const { mutate: deleteShoppingItem } = useMutation<
-    void,
-    Error,
-    ShoppingItemPayload
-  >({
-    onSuccess: () => {
-      refetch();
-    },
-    mutationFn: deleteItem,
-  });
+  const { isLoading: isDeleting, mutate: deleteShoppingItem } =
+    useMutation<void, Error, ShoppingItemPayload>({
+      onSuccess: () => {
+        refetch();
+      },
+      mutationFn: deleteItem,
+    });
 
   const shoppingList = useMemo<typeof data>(() => {
     if (data) {
@@ -297,7 +291,7 @@ const ShoppingListDetail: FunctionComponent = () => {
     return { sum, total };
   }, [shoppingList?.items.length]);
 
-  if (isFetching || !shoppingList) {
+  if (isLoading || !shoppingList) {
     return <SplashScreen />;
   }
 
@@ -351,13 +345,9 @@ const ShoppingListDetail: FunctionComponent = () => {
   };
 
   const renderItemText = (key: string, value?: string) => {
-    if (!value) {
-      return "";
-    }
-
     switch (key) {
       case "price":
-        return currencyFormat(Number(value));
+        return currencyFormat(Number(value || 0));
       default:
         return value;
     }
@@ -391,13 +381,16 @@ const ShoppingListDetail: FunctionComponent = () => {
         switch (key) {
           case "actions":
             itemRow.push(
-              <Center key={keyId}>
+              <Center key={crypto.randomUUID()}>
                 <Button
                   px={8}
                   size="xs"
                   color="red"
                   title="Deletar"
                   hidden={isChecked}
+                  disabled={
+                    isFetching || isEditing || isDeleting
+                  }
                   onClick={(
                     e: MouseEvent<HTMLButtonElement>
                   ) => {
@@ -414,9 +407,11 @@ const ShoppingListDetail: FunctionComponent = () => {
             itemRow.push(
               <Text
                 key={key}
-                onClick={() =>
-                  toggleShoppingItemStatus(payloadData)
-                }
+                onClick={() => {
+                  if (!isFetching && !isEditing && !isDeleting) {
+                    toggleShoppingItemStatus(payloadData);
+                  }
+                }}
               >
                 {renderItemText(key, item.get(key))}
               </Text>
@@ -465,13 +460,21 @@ const ShoppingListDetail: FunctionComponent = () => {
 
   return (
     <>
-      <Title
+      <Group
         mb="lg"
-        size="h2"
-        className="text-ellipsis"
+        align="center"
+        position="apart"
       >
-        {shoppingList.title}
-      </Title>
+        <Title
+          size="h2"
+          className="text-ellipsis"
+        >
+          {shoppingList.title}
+        </Title>
+        {(isFetching || isEditing || isDeleting) && (
+          <CustomIconLoader />
+        )}
+      </Group>
       <Tabs defaultValue="list">
         <Tabs.List
           mb="lg"
@@ -525,7 +528,24 @@ const ShoppingListDetail: FunctionComponent = () => {
             <Accordion.Item value="customization">
               <Accordion.Control>Costumização</Accordion.Control>
               <Accordion.Panel>
-                <Text>TBD...</Text>
+                <Text<"p">>Alterar estado da lista</Text>
+                <Group
+                  grow
+                  mt="md"
+                >
+                  <Button
+                    color="red"
+                    variant="light"
+                  >
+                    Desativar
+                  </Button>
+                  <Button
+                    color="gray"
+                    variant="light"
+                  >
+                    Arquivar
+                  </Button>
+                </Group>
               </Accordion.Panel>
             </Accordion.Item>
           </Accordion>
