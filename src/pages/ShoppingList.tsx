@@ -1,6 +1,12 @@
 import dayjs from "dayjs";
-import { IconTrash } from "@tabler/icons";
-import { useParams } from "react-router-dom";
+import { openConfirmModal } from "@mantine/modals";
+import { showNotification } from "@mantine/notifications";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  IconArchive,
+  IconHandStop,
+  IconTrash,
+} from "@tabler/icons";
 import {
   QueryObserverResult,
   useMutation,
@@ -11,6 +17,7 @@ import {
   FormEvent,
   FunctionComponent,
   MouseEvent,
+  useEffect,
   useMemo,
   useReducer,
 } from "react";
@@ -34,12 +41,13 @@ import {
 import api from "../api";
 import GridLayout from "../components/GridLayout";
 import SplashScreen from "../components/SplashScreen";
-import { QUERY_KEYS, currencyFormat } from "../constants";
 import CustomIconLoader from "../components/CustomIconLoader";
+import { PAGES, QUERY_KEYS, currencyFormat } from "../constants";
 import {
   ShoppingList,
   ShoppingItem,
   ShoppingItemPayload,
+  ShoppingListUpdatePayload,
   StringMap,
   AnyObject,
 } from "../types";
@@ -80,12 +88,12 @@ const useStyles = createStyles(theme => ({
 }));
 
 const ShoppingItemAddForm: FunctionComponent<
-  Pick<ShoppingList, "columns"> &
-    Pick<ShoppingItemPayload, "shoppingListId"> & {
-      refetch: () => Promise<
-        QueryObserverResult<ShoppingList, Error>
-      >;
-    }
+  Pick<ShoppingList, "columns"> & {
+    shoppingListId: string;
+    refetch: () => Promise<
+      QueryObserverResult<ShoppingList, Error>
+    >;
+  }
 > = ({ columns, shoppingListId, refetch }) => {
   const { cols, initialState } = useMemo(() => {
     const cols = Array.from(columns.entries());
@@ -117,24 +125,22 @@ const ShoppingItemAddForm: FunctionComponent<
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const addItem = async (values: typeof state) => {
-    const request = api<ShoppingItem>(
-      `shoppingList/${shoppingListId}/item`,
-      {
-        method: "POST",
-        body: JSON.stringify({ values }),
-      }
-    );
-
-    return await request();
-  };
-
   const { isLoading: isSaving, mutate: addShoppingItem } =
     useMutation<ShoppingItem, Error, typeof state>({
       onSuccess: () => {
         refetch();
       },
-      mutationFn: addItem,
+      mutationFn: async (values: typeof state) => {
+        const request = api<ShoppingItem>(
+          `shoppingList/${shoppingListId}/item`,
+          {
+            method: "POST",
+            body: JSON.stringify({ values }),
+          }
+        );
+
+        return await request();
+      },
     });
 
   return (
@@ -198,6 +204,7 @@ const ShoppingItemAddForm: FunctionComponent<
 };
 
 const ShoppingListDetail: FunctionComponent = () => {
+  const navigate = useNavigate();
   const { classes } = useStyles();
   const { shoppingListId } = useParams();
 
@@ -212,21 +219,6 @@ const ShoppingListDetail: FunctionComponent = () => {
     return await request();
   });
 
-  const toggleItem = async ({
-    shoppingListId,
-    shoppingItemId,
-  }: ShoppingItemPayload) => {
-    const request = api<ShoppingItem>(
-      `shoppingList/${shoppingListId}/item/${shoppingItemId}`,
-      {
-        method: "PATCH",
-        body: JSON.stringify({ action: "toggle" }),
-      }
-    );
-
-    return await request();
-  };
-
   const {
     isLoading: isEditing,
     mutate: toggleShoppingItemStatus,
@@ -234,27 +226,67 @@ const ShoppingListDetail: FunctionComponent = () => {
     onSuccess: () => {
       refetch();
     },
-    mutationFn: toggleItem,
+    mutationFn: async ({
+      shoppingItemId,
+    }: ShoppingItemPayload) => {
+      const request = api<ShoppingItem>(
+        `shoppingList/${shoppingListId}/item/${shoppingItemId}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ action: "toggle" }),
+        }
+      );
+
+      return await request();
+    },
   });
-
-  const deleteItem = async ({
-    shoppingListId,
-    shoppingItemId,
-  }: ShoppingItemPayload) => {
-    const request = api(
-      `shoppingList/${shoppingListId}/item/${shoppingItemId}`,
-      { method: "DELETE" }
-    );
-
-    return await request();
-  };
 
   const { isLoading: isDeleting, mutate: deleteShoppingItem } =
     useMutation<void, Error, ShoppingItemPayload>({
       onSuccess: () => {
         refetch();
       },
-      mutationFn: deleteItem,
+      mutationFn: async ({
+        shoppingItemId,
+      }: ShoppingItemPayload) => {
+        const request = api(
+          `shoppingList/${shoppingListId}/item/${shoppingItemId}`,
+          { method: "DELETE" }
+        );
+
+        return await request();
+      },
+    });
+
+  const { isLoading: isChanging, mutate: updateShoppingItem } =
+    useMutation<
+      ShoppingList,
+      Error,
+      Partial<ShoppingListUpdatePayload>
+    >({
+      onSuccess: ({ title, status }: ShoppingList) => {
+        if (status === "archived") {
+          showNotification({
+            color: "gray",
+            autoClose: 3000,
+            icon: <IconArchive />,
+            message: `Lista ${title} arquivada com sucesso.`,
+          });
+          navigate(`/${PAGES.SHOPPING_LISTS}`);
+        } else {
+          refetch();
+        }
+      },
+      mutationFn: async (
+        data: Partial<ShoppingListUpdatePayload>
+      ) => {
+        const request = api<ShoppingList>(
+          `shoppingList/${shoppingListId}`,
+          { method: "PATCH", body: JSON.stringify(data) }
+        );
+
+        return await request();
+      },
     });
 
   const shoppingList = useMemo<typeof data>(() => {
@@ -290,6 +322,18 @@ const ShoppingListDetail: FunctionComponent = () => {
 
     return { sum, total };
   }, [shoppingList?.items.length]);
+
+  useEffect(() => {
+    if (shoppingList?.status === "archived") {
+      showNotification({
+        color: "red",
+        autoClose: 3000,
+        icon: <IconHandStop />,
+        message: "Essa lista foi arquivada.",
+      });
+      navigate(`/${PAGES.SHOPPING_LISTS}`);
+    }
+  }, [shoppingList?.status]);
 
   if (isLoading || !shoppingList) {
     return <SplashScreen />;
@@ -370,7 +414,6 @@ const ShoppingListDetail: FunctionComponent = () => {
 
     for (const item of items) {
       const payloadData: ShoppingItemPayload = {
-        shoppingListId: `${shoppingListId}`,
         shoppingItemId: `${item.get("_id")}`,
       };
 
@@ -471,9 +514,10 @@ const ShoppingListDetail: FunctionComponent = () => {
         >
           {shoppingList.title}
         </Title>
-        {(isFetching || isEditing || isDeleting) && (
-          <CustomIconLoader />
-        )}
+        {(isFetching ||
+          isEditing ||
+          isChanging ||
+          isDeleting) && <CustomIconLoader />}
       </Group>
       <Tabs defaultValue="list">
         <Tabs.List
@@ -528,20 +572,82 @@ const ShoppingListDetail: FunctionComponent = () => {
             <Accordion.Item value="customization">
               <Accordion.Control>Costumização</Accordion.Control>
               <Accordion.Panel>
-                <Text<"p">>Alterar estado da lista</Text>
+                <Text>Alterar estado da lista</Text>
                 <Group
                   grow
                   mt="md"
                 >
+                  {shoppingList.status === "active" && (
+                    <Button
+                      color="indigo"
+                      variant="outline"
+                      disabled={isChanging}
+                      onClick={() =>
+                        updateShoppingItem({
+                          status: "inactive",
+                        })
+                      }
+                    >
+                      Desativar
+                    </Button>
+                  )}
+                  {shoppingList.status === "inactive" && (
+                    <Button
+                      color="blue"
+                      variant="outline"
+                      disabled={isChanging}
+                      onClick={() =>
+                        updateShoppingItem({
+                          status: "active",
+                        })
+                      }
+                    >
+                      Ativar
+                    </Button>
+                  )}
                   <Button
                     color="red"
-                    variant="light"
-                  >
-                    Desativar
-                  </Button>
-                  <Button
-                    color="gray"
-                    variant="light"
+                    variant="outline"
+                    disabled={
+                      isChanging ||
+                      shoppingList.status === "active"
+                    }
+                    onClick={() =>
+                      openConfirmModal({
+                        title: `Arquivar "${shoppingList.title}"`,
+                        centered: true,
+                        children: (
+                          <>
+                            <Text size="sm">
+                              Tem certeza que deseja{" "}
+                              <strong>ARQUIVAR</strong> essa
+                              lista?
+                            </Text>
+                            <Text
+                              size="sm"
+                              color="red"
+                            >
+                              Esta ação não pode ser desfeita.
+                            </Text>
+                          </>
+                        ),
+                        labels: {
+                          cancel: "Cancelar",
+                          confirm: "Sim, quero arquivar",
+                        },
+                        confirmProps: {
+                          fw: "normal",
+                          color: "red",
+                        },
+                        cancelProps: {
+                          fw: "normal",
+                        },
+                        onConfirm: () =>
+                          updateShoppingItem({
+                            status: "archived",
+                          }),
+                      })
+                    }
                   >
                     Arquivar
                   </Button>

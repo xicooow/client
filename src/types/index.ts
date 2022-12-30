@@ -79,7 +79,6 @@ export interface StickyTableProps {
 }
 
 export interface ShoppingItemPayload {
-  shoppingListId: string;
   shoppingItemId: string;
 }
 
@@ -117,4 +116,12 @@ export type ReducedShoppingLists = Pick<
   "_id" | "title" | "cre_date"
 >[];
 
-export type ShoppingListPayload = Pick<ShoppingList, "title">;
+export type ShoppingListCreatePayload = Pick<
+  ShoppingList,
+  "title"
+>;
+
+export type ShoppingListUpdatePayload = Pick<
+  ShoppingList,
+  "title" | "status"
+>;
