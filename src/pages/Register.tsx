@@ -26,22 +26,20 @@ const Register: FunctionComponent = () => {
     },
   });
 
-  const mutationFn = async (params: RegistryPayload) => {
-    const request = api<Account>("user", {
-      method: "POST",
-      body: JSON.stringify(params),
-    });
-
-    return await request();
-  };
-
   const {
     error,
     isLoading,
     mutate: register,
   } = useMutation<Account, Error, RegistryPayload>({
     onSuccess: () => navigate(`/${PAGES.LOGIN}`),
-    mutationFn,
+    mutationFn: async (params: RegistryPayload) => {
+      const request = api<Account>("user", {
+        method: "POST",
+        body: JSON.stringify(params),
+      });
+
+      return await request();
+    },
   });
 
   return (

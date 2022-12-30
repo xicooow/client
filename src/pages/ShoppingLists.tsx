@@ -40,7 +40,7 @@ import CustomIconLoader from "../components/CustomIconLoader";
 import {
   ReducedShoppingLists,
   ShoppingList,
-  ShoppingListPayload,
+  ShoppingListCreatePayload,
   StringMap,
 } from "../types";
 
@@ -49,25 +49,16 @@ const ShoppingListForm: FunctionComponent<{
     QueryObserverResult<ReducedShoppingLists, Error>
   >;
 }> = ({ refetch }) => {
-  const form = useForm<ShoppingListPayload>({
+  const form = useForm<ShoppingListCreatePayload>({
     initialValues: {
       title: "",
     },
   });
 
-  const mutationFn = async (params: ShoppingListPayload) => {
-    const request = api<ShoppingList>("shoppingList", {
-      method: "POST",
-      body: JSON.stringify(params),
-    });
-
-    return await request();
-  };
-
   const { isLoading, mutate: create } = useMutation<
     ShoppingList,
     Error,
-    ShoppingListPayload
+    ShoppingListCreatePayload
   >({
     onSuccess: ({ title }: ShoppingList) => {
       showNotification({
@@ -84,7 +75,14 @@ const ShoppingListForm: FunctionComponent<{
         icon: <IconExclamationMark />,
         message: "Erro ao criar lista, tente novamente",
       }),
-    mutationFn,
+    mutationFn: async (params: ShoppingListCreatePayload) => {
+      const request = api<ShoppingList>("shoppingList", {
+        method: "POST",
+        body: JSON.stringify(params),
+      });
+
+      return await request();
+    },
   });
 
   return (

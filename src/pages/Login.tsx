@@ -29,22 +29,20 @@ const Login: FunctionComponent = () => {
     null
   );
 
-  const mutationFn = async (params: LoginPayload) => {
-    const request = api<LoginResponse>("login", {
-      method: "POST",
-      body: JSON.stringify(params),
-    });
-
-    return await request();
-  };
-
   const {
     error,
     isLoading,
     mutate: login,
   } = useMutation<LoginResponse, Error, LoginPayload>({
     onSuccess: ({ token }: LoginResponse) => setAuthToken(token),
-    mutationFn,
+    mutationFn: async (params: LoginPayload) => {
+      const request = api<LoginResponse>("login", {
+        method: "POST",
+        body: JSON.stringify(params),
+      });
+
+      return await request();
+    },
   });
 
   useEffect(() => {
